@@ -8,9 +8,11 @@
 
 #### Development
 
+Before launching, you need to create a `.env.key` file containing an authentication token.
+
 ```shell
 # Run debug build
-cargo run +key=KEY
+cargo run
 
 # Build release build
 cargo build -r

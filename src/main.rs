@@ -1,8 +1,7 @@
 use warp::{http, Filter};
 use parking_lot::RwLock;
-use std::sync::Arc;
+use std::{sync::Arc, fs};
 use serde::{Serialize, Deserialize};
-use std::env;
 
 type ScoreEntries = Vec<(String, f32)>;
 
@@ -50,13 +49,11 @@ fn post_json() -> impl Filter<Extract = (ScoreEntry,), Error = warp::Rejection> 
 #[tokio::main]
 async fn main() {
     // Secret key
-    let args: Vec<String> = env::args().collect();
-    let secret_arg_key = &args[1];
-    if !secret_arg_key.starts_with("+key=") {
-        println!("Argument should be formatted as follows: +key=azdijazdoihazd.");
-        return;
+    fn read_file_string(filepath: &str) -> Result<String, Box<dyn std::error::Error>> {
+        let data = fs::read_to_string(filepath)?;
+        Ok(data)
     }
-    let secret = &secret_arg_key[5..];
+    let secret = read_file_string(".env.key").unwrap();
     dbg!(secret);
 
 
