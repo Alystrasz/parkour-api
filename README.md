@@ -10,7 +10,7 @@
 
 ```shell
 # Run debug build
-cargo run
+cargo run +key=KEY
 
 # Build release build
 cargo build -r
