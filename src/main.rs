@@ -1,7 +1,8 @@
 use warp::{http, Filter};
 use parking_lot::RwLock;
-use std::{sync::Arc, fs};
+use std::{sync::Arc, fs::File};
 use serde::{Serialize, Deserialize};
+use std::io::prelude::*;
 
 type ScoreEntries = Vec<(String, f32)>;
 
@@ -49,13 +50,13 @@ fn post_json() -> impl Filter<Extract = (ScoreEntry,), Error = warp::Rejection> 
 #[tokio::main]
 async fn main() {
     // Secret key
-    fn read_file_string(filepath: &str) -> Result<String, Box<dyn std::error::Error>> {
-        let data = fs::read_to_string(filepath)?;
-        Ok(data)
-    }
-    let secret = read_file_string(".env.key").unwrap();
-    dbg!(secret);
+    let mut file = File::open(".env.key").expect("File not found");
+    let mut data = String::new();
+    file.read_to_string(&mut data).expect("Error while reading file");
 
+    // Authentication control
+    let header_value = Box::leak(data.into_boxed_str());
+    let accept_requests = warp::header::exact("authentication", header_value);
 
     // Routes
     let store = Store::new();
@@ -79,7 +80,7 @@ async fn main() {
 
     let routes = add_scores.or(get_scores);
 
-    warp::serve(routes)
+    warp::serve(accept_requests.and(routes))
         .run(([127, 0, 0, 1], 3030))
         .await;
 }
