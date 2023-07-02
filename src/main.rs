@@ -28,7 +28,27 @@ async fn update_scores_list(
     entry: ScoreEntry,
     store: Store
     ) -> Result<impl warp::Reply, warp::Rejection> {
+        // Checking for existing entry
+        let index = store.scores_list.read().iter().position(|e| e.0 == entry.name).unwrap_or_else(|| { usize::MAX });
+        if index != usize::MAX {
+            let existing_entry = &store.scores_list.read()[index];
+            // If existing entry is better than new entry, we keep the new entry
+            if entry.time >= existing_entry.1 {
+                return Ok(warp::reply::with_status(
+                    "",
+                    http::StatusCode::ALREADY_REPORTED,
+                ));
+            } 
+            // Else, we remove the existing entry
+            else {
+                // TODO locked here
+                store.scores_list.write().remove(index);
+            }
+        }
+        
         store.scores_list.write().push((entry.name, entry.time));
+
+        // TODO sort list by times
         
         Ok(warp::reply::with_status(
             "",
