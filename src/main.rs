@@ -46,9 +46,11 @@ async fn update_scores_list(
             }
         }
         
-        store.scores_list.write().push((entry.name, entry.time));
+        let mut write_lock = store.scores_list.write();
+        write_lock.push((entry.name, entry.time));
 
-        // TODO sort list by times
+        // Sort list by times
+        write_lock.sort_by(|a, b| a.1.partial_cmp(&b.1).unwrap());
         
         Ok(warp::reply::with_status(
             "",
