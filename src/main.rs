@@ -70,9 +70,21 @@ fn post_json() -> impl Filter<Extract = (ScoreEntry,), Error = warp::Rejection> 
 #[tokio::main]
 async fn main() {
     // Secret key
-    let mut file = File::open(".env.key").expect("File not found");
+    let mut file = match File::open(".env.key") {
+        Ok(file) => file,
+        Err(err) => {
+            println!("Error: \".env.key\" secret file does not exist [{}].", err);
+            std::process::exit(1);
+        }
+    };
     let mut data = String::new();
-    file.read_to_string(&mut data).expect("Error while reading file");
+    match file.read_to_string(&mut data) {
+        Ok(_) => (),
+        Err(err) => {
+            println!("Error: Failed reading secret file [{}].", err);
+            std::process::exit(2);
+        }
+    }
 
     // Authentication control
     let header_value = Box::leak(data.into_boxed_str());
