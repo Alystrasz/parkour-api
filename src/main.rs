@@ -1,10 +1,11 @@
+mod persistence;
+
+use persistence::start_save_cron;
 use warp::{http, Filter};
 use parking_lot::RwLock;
 use std::{sync::Arc, fs::File};
 use serde::{Serialize, Deserialize};
 use std::io::prelude::*;
-use std::thread;
-use std::time::Duration;
 
 type ScoreEntries = Vec<ScoreEntry>;
 
@@ -15,7 +16,7 @@ struct ScoreEntry {
 }
 
 #[derive(Clone)]
-struct Store {
+pub struct Store {
   scores_list: Arc<RwLock<ScoreEntries>>
 }
 
@@ -71,37 +72,6 @@ fn post_json() -> impl Filter<Extract = (ScoreEntry,), Error = warp::Rejection> 
     warp::body::content_length_limit(1024 * 16).and(warp::body::json())
 }
 
-fn list_dump_cron(store: Store) {
-    thread::spawn(move || {
-        loop {
-            thread::sleep(Duration::from_secs(5));
-            let scores = store.scores_list.read().to_vec();
-
-            let mut buffer = match File::create("list.json") {
-                Ok(file) => file,
-                Err(err) => {
-                    println!("Error: \".list.json\" file could not be created [{}].", err);
-                    std::process::exit(3);
-                }
-            };
-
-            let str = match serde_json::to_string(&scores) {
-                Ok(str) => str,
-                Err(err) => {
-                    println!("Error: failed serializing scores list [{}].", err);
-                    std::process::exit(3);
-                }
-            };
-            match buffer.write(str.as_bytes()) {
-                Ok(str) => str,
-                Err(err) => {
-                    println!("Error: failed writing scores list to file [{}].", err);
-                    std::process::exit(3);
-                }
-            };
-        }
-    });
-}
 
 #[tokio::main]
 async fn main() {
@@ -128,7 +98,7 @@ async fn main() {
 
     let store = Store::new();
     // Scores saving cron
-    list_dump_cron(store.clone());
+    start_save_cron(store.clone());
     let store_filter = warp::any().map(move || store.clone());
 
 
