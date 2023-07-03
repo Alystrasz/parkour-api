@@ -1,7 +1,7 @@
 use std::{thread, time::Duration, fs::File};
 use std::io::prelude::*;
 
-use crate::{Store, ScoreEntries};
+use crate::{Store, ScoreEntries, log};
 
 pub fn start_save_cron(store: Store) {
     thread::spawn(move || {
@@ -12,7 +12,7 @@ pub fn start_save_cron(store: Store) {
             let mut buffer = match File::create("list.json") {
                 Ok(file) => file,
                 Err(err) => {
-                    println!("Error: \".list.json\" file could not be created [{}].", err);
+                    log::error(&format!("\".list.json\" file could not be created [{}].", err));
                     std::process::exit(3);
                 }
             };
@@ -20,17 +20,18 @@ pub fn start_save_cron(store: Store) {
             let str = match serde_json::to_string(&scores) {
                 Ok(str) => str,
                 Err(err) => {
-                    println!("Error: failed serializing scores list [{}].", err);
+                    log::error(&format!("Failed serializing scores list [{}].", err));
                     std::process::exit(3);
                 }
             };
             match buffer.write(str.as_bytes()) {
                 Ok(str) => str,
                 Err(err) => {
-                    println!("Error: failed writing scores list to file [{}].", err);
+                    log::error(&format!("Failed writing scores list to file [{}].", err));
                     std::process::exit(3);
                 }
             };
+            log::info("Saved scores to local file.");
         }
     });
 }
@@ -39,7 +40,7 @@ pub fn load_state(store: Store) {
     let mut file = match File::open("list.json") {
         Ok(file) => file,
         Err(_) => {
-            println!("Info: \"list.json\" file does not exist, initializing scores list as empty.");
+            log::info("\"list.json\" file does not exist, initializing scores list as empty.");
             return;
         }
     };
@@ -47,7 +48,7 @@ pub fn load_state(store: Store) {
     match file.read_to_string(&mut data) {
         Ok(_) => (),
         Err(err) => {
-            println!("Error: Failed reading \"list.json\" file [{}].", err);
+            log::error(&format!("Failed reading \"list.json\" file [{}].", err));
             std::process::exit(2);
         }
     };
@@ -55,11 +56,11 @@ pub fn load_state(store: Store) {
     let mut serialized: ScoreEntries = match serde_json::from_str::<ScoreEntries>(&data) {
         Ok(data) => data,
         Err(err) => {
-            println!("Error: Failed serializing scores list [{}].", err);
+            log::error(&format!("Failed serializing scores list [{}].", err));
             std::process::exit(2);
         }
     };
 
     store.scores_list.write().append(&mut serialized);
-    println!("Loaded scores list with {} entries from \"list.json\" file.", serialized.len());
+    log::info("Loaded scores list from \"list.json\" file.");
 }

@@ -1,4 +1,5 @@
 mod persistence;
+pub mod log;
 
 use persistence::{start_save_cron, load_state};
 use warp::{http, Filter};
@@ -79,7 +80,7 @@ async fn main() {
     let mut file = match File::open(".env.key") {
         Ok(file) => file,
         Err(err) => {
-            println!("Error: \".env.key\" secret file does not exist [{}].", err);
+            log::error(&format!("\".env.key\" secret file does not exist [{}].", err));
             std::process::exit(1);
         }
     };
@@ -87,7 +88,7 @@ async fn main() {
     match file.read_to_string(&mut data) {
         Ok(_) => (),
         Err(err) => {
-            println!("Error: Failed reading secret file [{}].", err);
+            log::error(&format!("Failed reading secret file [{}].", err));
             std::process::exit(2);
         }
     }
