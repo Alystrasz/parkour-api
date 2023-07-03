@@ -1,6 +1,6 @@
 mod persistence;
 
-use persistence::start_save_cron;
+use persistence::{start_save_cron, load_state};
 use warp::{http, Filter};
 use parking_lot::RwLock;
 use std::{sync::Arc, fs::File};
@@ -92,13 +92,18 @@ async fn main() {
         }
     }
 
+
     // Authentication control
     let header_value = Box::leak(data.into_boxed_str());
     let accept_requests = warp::header::exact("authentication", header_value);
 
     let store = Store::new();
+
+    // If scores were previously saved to file, restore them
+    load_state(store.clone());
     // Scores saving cron
     start_save_cron(store.clone());
+
     let store_filter = warp::any().map(move || store.clone());
 
 

@@ -1,7 +1,7 @@
 use std::{thread, time::Duration, fs::File};
 use std::io::prelude::*;
 
-use crate::Store;
+use crate::{Store, ScoreEntries};
 
 pub fn start_save_cron(store: Store) {
     thread::spawn(move || {
@@ -33,4 +33,33 @@ pub fn start_save_cron(store: Store) {
             };
         }
     });
+}
+
+pub fn load_state(store: Store) {
+    let mut file = match File::open("list.json") {
+        Ok(file) => file,
+        Err(_) => {
+            println!("Info: \"list.json\" file does not exist, initializing scores list as empty.");
+            return;
+        }
+    };
+    let mut data = String::new();
+    match file.read_to_string(&mut data) {
+        Ok(_) => (),
+        Err(err) => {
+            println!("Error: Failed reading \"list.json\" file [{}].", err);
+            std::process::exit(2);
+        }
+    };
+
+    let mut serialized: ScoreEntries = match serde_json::from_str::<ScoreEntries>(&data) {
+        Ok(data) => data,
+        Err(err) => {
+            println!("Error: Failed serializing scores list [{}].", err);
+            std::process::exit(2);
+        }
+    };
+
+    store.scores_list.write().append(&mut serialized);
+    println!("Loaded scores list with {} entries from \"list.json\" file.", serialized.len());
 }
