@@ -4,7 +4,7 @@ use std::{sync::Arc, fs::File};
 use serde::{Serialize, Deserialize};
 use std::io::prelude::*;
 
-type ScoreEntries = Vec<(String, f32)>;
+type ScoreEntries = Vec<ScoreEntry>;
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
 struct ScoreEntry {
@@ -30,11 +30,11 @@ async fn update_scores_list(
     ) -> Result<impl warp::Reply, warp::Rejection> {
         // Checking for existing entry
         let scores = store.scores_list.read().to_vec();
-        let index = scores.iter().position(|e| e.0 == entry.name).unwrap_or_else(|| { usize::MAX });
+        let index = scores.iter().position(|e| e.name == entry.name).unwrap_or_else(|| { usize::MAX });
         if index != usize::MAX {
             let existing_entry = &scores[index];
             // If existing entry is better than new entry, we keep the new entry
-            if entry.time >= existing_entry.1 {
+            if entry.time >= existing_entry.time {
                 return Ok(warp::reply::with_status(
                     "",
                     http::StatusCode::ALREADY_REPORTED,
@@ -47,10 +47,10 @@ async fn update_scores_list(
         }
         
         let mut write_lock = store.scores_list.write();
-        write_lock.push((entry.name, entry.time));
+        write_lock.push(ScoreEntry { name: entry.name, time: entry.time });
 
         // Sort list by times
-        write_lock.sort_by(|a, b| a.1.partial_cmp(&b.1).unwrap());
+        write_lock.sort_by(|a, b| a.time.partial_cmp(&b.time).unwrap());
         
         Ok(warp::reply::with_status(
             "",
@@ -92,10 +92,11 @@ async fn main() {
     let header_value = Box::leak(data.into_boxed_str());
     let accept_requests = warp::header::exact("authentication", header_value);
 
-    // Routes
     let store = Store::new();
     let store_filter = warp::any().map(move || store.clone());
 
+
+    // Routes
     let get_scores = warp::get()
         .and(warp::path("v1"))
         .and(warp::path("scores"))
@@ -110,7 +111,6 @@ async fn main() {
         .and(post_json())
         .and(store_filter.clone())
         .and_then(update_scores_list);
-
 
     let routes = add_scores.or(get_scores);
 
