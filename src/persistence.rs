@@ -6,7 +6,7 @@ use crate::{Store, ScoreEntries, log};
 pub fn start_save_cron(store: Store) {
     thread::spawn(move || {
         loop {
-            thread::sleep(Duration::from_secs(5));
+            thread::sleep(Duration::from_secs(15 * 60));
             let scores = store.scores_list.read().to_vec();
 
             let mut buffer = match File::create("list.json") {
