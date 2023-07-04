@@ -16,4 +16,7 @@ cargo run
 
 # Build release build
 cargo build -r
+
+# Build release build without glibc
+cargo build --target x86_64-unknown-linux-musl -r
 ```
