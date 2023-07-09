@@ -6,9 +6,16 @@
     * **GET**: obtain the list of scores
     * **POST**: create a new score entry (with "name" and "time" keys in JSON body)
 
-#### Development
+#### Security
 
-Before launching, you need to create a `.env.key` file containing an authentication token.
+Before launching, you need to setup a secret which will be used to authenticate servers.
+
+```shell
+# On Windows:
+$Env:PARKOUR_API_SECRET = "your_secret_here"
+```
+
+#### Development
 
 ```shell
 # Run debug build

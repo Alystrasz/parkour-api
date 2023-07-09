@@ -4,9 +4,8 @@ pub mod log;
 use persistence::{start_save_cron, load_state};
 use warp::{http, Filter};
 use parking_lot::RwLock;
-use std::{sync::Arc, fs::File};
+use std::{env, sync::Arc};
 use serde::{Serialize, Deserialize};
-use std::io::prelude::*;
 
 type ScoreEntries = Vec<ScoreEntry>;
 
@@ -77,25 +76,16 @@ fn post_json() -> impl Filter<Extract = (ScoreEntry,), Error = warp::Rejection> 
 #[tokio::main]
 async fn main() {
     // Secret key
-    let mut file = match File::open(".env.key") {
-        Ok(file) => file,
+    let secret = match env::var("PARKOUR_API_SECRET") {
+        Ok(s) => s,
         Err(err) => {
-            log::error(&format!("\".env.key\" secret file does not exist [{}].", err));
+            log::error(&format!("No secret was found, exiting [{}].", err));
             std::process::exit(1);
         }
     };
-    let mut data = String::new();
-    match file.read_to_string(&mut data) {
-        Ok(_) => (),
-        Err(err) => {
-            log::error(&format!("Failed reading secret file [{}].", err));
-            std::process::exit(2);
-        }
-    }
-
 
     // Authentication control
-    let header_value = Box::leak(data.into_boxed_str());
+    let header_value = Box::leak(secret.into_boxed_str());
     let accept_requests = warp::header::exact("authentication", header_value);
 
     let store = Store::new();
