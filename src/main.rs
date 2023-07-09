@@ -1,6 +1,8 @@
 mod persistence;
 pub mod log;
+pub mod event;
 
+use event::Events;
 use persistence::{start_save_cron, load_state};
 use warp::{http, Filter};
 use parking_lot::RwLock;
@@ -17,13 +19,15 @@ struct ScoreEntry {
 
 #[derive(Clone)]
 pub struct Store {
-  scores_list: Arc<RwLock<ScoreEntries>>
+  scores_list: Arc<RwLock<ScoreEntries>>,
+  events_list: Arc<RwLock<Events>>
 }
 
 impl Store {
     fn new() -> Self {
         Store {
-            scores_list: Arc::new(RwLock::new(Vec::new()))
+            scores_list: Arc::new(RwLock::new(Vec::new())),
+            events_list: Arc::new(RwLock::new(Vec::new())),
         }
     }
 }
@@ -114,7 +118,15 @@ async fn main() {
         .and(store_filter.clone())
         .and_then(update_scores_list);
 
-    let routes = add_scores.or(get_scores);
+    // Events
+    let events_list_route = warp::get()
+        .and(warp::path("v1"))
+        .and(warp::path("events"))
+        .and(warp::path::end())
+        .and(store_filter.clone())
+        .and_then(event::get_list);
+
+    let routes = add_scores.or(get_scores).or(events_list_route);
 
     warp::serve(accept_requests.and(routes))
         .run(([127, 0, 0, 1], 3030))
