@@ -3,16 +3,18 @@ use std::io::prelude::*;
 
 use crate::{Store, ScoreEntries, log};
 
+const SCORES_FILE: &str = "scores.json";
+
 pub fn start_save_cron(store: Store) {
     thread::spawn(move || {
         loop {
-            thread::sleep(Duration::from_secs(15 * 60));
+            thread::sleep(Duration::from_secs(5));
             let scores = store.scores_list.read().clone();
 
-            let mut buffer = match File::create("list.json") {
+            let mut buffer = match File::create(SCORES_FILE) {
                 Ok(file) => file,
                 Err(err) => {
-                    log::error(&format!("\".list.json\" file could not be created [{}].", err));
+                    log::error(&format!("\"{}\" file could not be created [{}].", SCORES_FILE, err));
                     std::process::exit(3);
                 }
             };
@@ -37,10 +39,10 @@ pub fn start_save_cron(store: Store) {
 }
 
 pub fn load_state(store: Store) {
-    let mut file = match File::open("list.json") {
+    let mut file = match File::open(SCORES_FILE) {
         Ok(file) => file,
         Err(_) => {
-            log::info("\"list.json\" file does not exist, initializing scores list as empty.");
+            log::info(&format!("\"{}\" file does not exist, initializing scores list as empty.", SCORES_FILE));
             return;
         }
     };
@@ -48,7 +50,7 @@ pub fn load_state(store: Store) {
     match file.read_to_string(&mut data) {
         Ok(_) => (),
         Err(err) => {
-            log::error(&format!("Failed reading \"list.json\" file [{}].", err));
+            log::error(&format!("Failed reading \"{}\" file [{}].", SCORES_FILE, err));
             std::process::exit(2);
         }
     };
@@ -65,5 +67,5 @@ pub fn load_state(store: Store) {
     for (key, value) in serialized {
         write_lock.insert(key, value);
     }
-    log::info("Loaded scores list from \"list.json\" file.");
+    log::info(&format!("Loaded scores list from \"{}\" file.", SCORES_FILE));
 }
