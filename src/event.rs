@@ -9,7 +9,7 @@ pub type Events = Vec<Event>;
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct Event {
     name: String,
-    id: Option<String>,
+    pub id: Option<String>,
 }
 
 pub async fn get_list(

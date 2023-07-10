@@ -2,14 +2,14 @@ mod persistence;
 pub mod log;
 pub mod event;
 
-use event::Events;
+use event::{Events, Event};
 use persistence::{start_save_cron, load_state};
-use warp::{http, Filter};
+use warp::{http, Filter, hyper::StatusCode};
 use parking_lot::RwLock;
-use std::{env, sync::Arc};
+use std::{env, sync::Arc, collections::HashMap};
 use serde::{Serialize, Deserialize};
 
-type ScoreEntries = Vec<ScoreEntry>;
+type ScoreEntries = HashMap<String, Vec<ScoreEntry>>;
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
 struct ScoreEntry {
@@ -26,12 +26,13 @@ pub struct Store {
 impl Store {
     fn new() -> Self {
         Store {
-            scores_list: Arc::new(RwLock::new(Vec::new())),
+            scores_list: Arc::new(RwLock::new(HashMap::new())),
             events_list: Arc::new(RwLock::new(Vec::new())),
         }
     }
 }
-async fn update_scores_list(
+
+/*async fn update_scores_list(
     entry: ScoreEntry,
     store: Store
     ) -> Result<impl warp::Reply, warp::Rejection> {
@@ -63,7 +64,7 @@ async fn update_scores_list(
             "",
             http::StatusCode::CREATED,
         ))
-}
+}*/
 
 async fn get_scores_list(
     store: Store
@@ -110,13 +111,14 @@ async fn main() {
         .and(store_filter.clone())
         .and_then(get_scores_list);
 
-    let add_scores = warp::post()
+    /*let add_scores = warp::post()
         .and(warp::path("v1"))
         .and(warp::path("scores"))
         .and(warp::path::end())
         .and(post_json())
         .and(store_filter.clone())
-        .and_then(update_scores_list);
+        .and_then(update_scores_list);*/
+
 
     // Events
     let events_list_route = warp::get()
@@ -142,7 +144,7 @@ async fn main() {
         .and(store_filter.clone())
         .and_then(event::get_event);
 
-    let routes = add_scores.or(get_scores).or(events_list_route).or(event_creation_route).or(event_details_route);
+    let routes = get_scores.or(events_list_route).or(event_creation_route).or(event_details_route);
 
     warp::serve(accept_requests.and(routes))
         .run(([127, 0, 0, 1], 3030))

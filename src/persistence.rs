@@ -7,7 +7,7 @@ pub fn start_save_cron(store: Store) {
     thread::spawn(move || {
         loop {
             thread::sleep(Duration::from_secs(15 * 60));
-            let scores = store.scores_list.read().to_vec();
+            let scores = store.scores_list.read().clone();
 
             let mut buffer = match File::create("list.json") {
                 Ok(file) => file,
@@ -53,7 +53,7 @@ pub fn load_state(store: Store) {
         }
     };
 
-    let mut serialized: ScoreEntries = match serde_json::from_str::<ScoreEntries>(&data) {
+    let serialized: ScoreEntries = match serde_json::from_str::<ScoreEntries>(&data) {
         Ok(data) => data,
         Err(err) => {
             log::error(&format!("Failed serializing scores list [{}].", err));
@@ -61,6 +61,9 @@ pub fn load_state(store: Store) {
         }
     };
 
-    store.scores_list.write().append(&mut serialized);
+    let mut write_lock = store.scores_list.write();
+    for (key, value) in serialized {
+        write_lock.insert(key, value);
+    }
     log::info("Loaded scores list from \"list.json\" file.");
 }
