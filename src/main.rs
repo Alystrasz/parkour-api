@@ -134,7 +134,15 @@ async fn main() {
         .and(store_filter.clone())
         .and_then(event::create_event);
 
-    let routes = add_scores.or(get_scores).or(events_list_route).or(event_creation_route);
+    let event_details_route = warp::get()
+        .and(warp::path("v1"))
+        .and(warp::path("events"))
+        .and(warp::path::param())
+        .and(warp::path::end())
+        .and(store_filter.clone())
+        .and_then(event::get_event);
+
+    let routes = add_scores.or(get_scores).or(events_list_route).or(event_creation_route).or(event_details_route);
 
     warp::serve(accept_requests.and(routes))
         .run(([127, 0, 0, 1], 3030))
