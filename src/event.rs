@@ -33,8 +33,12 @@ pub async fn create_event(
             ));
         }
 
+        let event_id = Uuid::new_v4().to_string();
         let mut write_lock = store.events_list.write();
-        write_lock.push(Event { name: entry.name, id: Some(Uuid::new_v4().to_string()) });
+        write_lock.push(Event { name: entry.name, id: Some(event_id.clone()) });
+
+        let mut scores_write_lock = store.scores_list.write();
+        scores_write_lock.insert(event_id, [].to_vec());
 
         Ok(warp::reply::with_status(
             "",

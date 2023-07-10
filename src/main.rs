@@ -32,6 +32,28 @@ impl Store {
     }
 }
 
+async fn get_event_scores(
+    event_id: String,
+    store: Store
+) -> Result<impl warp::Reply, warp::Rejection> {
+    // Checking for existing event
+    let events: Vec<Event> = store.events_list.read().to_vec();
+    let index = events.iter().position(|e| e.id.clone().unwrap() == event_id).unwrap_or_else(|| { usize::MAX });
+    if index == usize::MAX {
+        return Ok(warp::reply::with_status(
+            warp::reply::json(&"{\"error\": \"Event not found.\"}"),
+            StatusCode::NOT_FOUND,
+        ));
+    }
+
+    let read_lock = store.scores_list.read();
+    let scores = read_lock.get(&event_id).unwrap();
+    return Ok(warp::reply::with_status(
+        warp::reply::json(&scores),
+        http::StatusCode::OK,
+    ));
+}
+
 /*async fn update_scores_list(
     entry: ScoreEntry,
     store: Store
@@ -144,7 +166,16 @@ async fn main() {
         .and(store_filter.clone())
         .and_then(event::get_event);
 
-    let routes = get_scores.or(events_list_route).or(event_creation_route).or(event_details_route);
+    let event_scores_route = warp::get()
+        .and(warp::path("v1"))
+        .and(warp::path("events"))
+        .and(warp::path::param())
+        .and(warp::path("scores"))
+        .and(warp::path::end())
+        .and(store_filter.clone())
+        .and_then(get_event_scores);
+
+    let routes = get_scores.or(events_list_route).or(event_creation_route).or(event_details_route).or(event_scores_route);
 
     warp::serve(accept_requests.and(routes))
         .run(([127, 0, 0, 1], 3030))
