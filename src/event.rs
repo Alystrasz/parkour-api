@@ -9,12 +9,7 @@ pub type Events = Vec<Event>;
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct Event {
     name: String,
-    id: String,
-}
-
-#[derive(Debug, Deserialize, Serialize, Clone)]
-pub struct PartialEvent {
-    name: String,
+    id: Option<String>,
 }
 
 pub async fn get_list(
@@ -25,7 +20,7 @@ pub async fn get_list(
 }
 
 pub async fn create_event(
-    entry: PartialEvent,
+    entry: Event,
     store: Store
     ) -> Result<impl warp::Reply, warp::Rejection> {
         // Checking for existing entry
@@ -39,7 +34,7 @@ pub async fn create_event(
         }
 
         let mut write_lock = store.events_list.write();
-        write_lock.push(Event { name: entry.name, id: Uuid::new_v4().to_string() });
+        write_lock.push(Event { name: entry.name, id: Some(Uuid::new_v4().to_string()) });
 
         Ok(warp::reply::with_status(
             "",
@@ -47,6 +42,6 @@ pub async fn create_event(
         ))
 }
 
-pub fn post_json() -> impl Filter<Extract = (PartialEvent,), Error = warp::Rejection> + Clone {
+pub fn post_json() -> impl Filter<Extract = (Event,), Error = warp::Rejection> + Clone {
     warp::body::content_length_limit(1024 * 16).and(warp::body::json())
 }
