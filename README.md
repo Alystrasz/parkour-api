@@ -13,6 +13,10 @@ Before launching, you need to setup a secret which will be used to authenticate 
 ```shell
 # On Windows:
 $Env:PARKOUR_API_SECRET = "your_secret_here"
+cargo run
+
+# On Linux
+PARKOUR_API_SECRET=your_secret_here cargo run
 ```
 
 #### Development
