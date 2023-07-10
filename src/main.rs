@@ -54,12 +54,23 @@ async fn get_event_scores(
     ));
 }
 
-/*async fn update_scores_list(
+async fn create_score_entry(
+    event_id: String,
     entry: ScoreEntry,
     store: Store
     ) -> Result<impl warp::Reply, warp::Rejection> {
+        // Check if provided event exists
+        let events: Vec<Event> = store.events_list.read().to_vec();
+        let index = events.iter().position(|e| e.clone().id.unwrap() == event_id).unwrap_or_else(|| { usize::MAX });
+        if index == usize::MAX {
+            return Ok(warp::reply::with_status(
+                "",
+                http::StatusCode::NOT_FOUND,
+            ))
+        }
+
         // Checking for existing entry
-        let scores = store.scores_list.read().to_vec();
+        let mut scores = store.scores_list.read().get(&event_id).unwrap().clone();
         let index = scores.iter().position(|e| e.name == entry.name).unwrap_or_else(|| { usize::MAX });
         if index != usize::MAX {
             let existing_entry = &scores[index];
@@ -72,21 +83,25 @@ async fn get_event_scores(
             } 
             // Else, we remove the existing entry
             else {
-                store.scores_list.write().remove(index);
+                scores.remove(index);
             }
         }
         
-        let mut write_lock = store.scores_list.write();
-        write_lock.push(ScoreEntry { name: entry.name, time: entry.time });
+        // Create new entry
+        scores.push(ScoreEntry { name: entry.name, time: entry.time });
 
         // Sort list by times
-        write_lock.sort_by(|a, b| a.time.partial_cmp(&b.time).unwrap());
+        scores.sort_by(|a, b| a.time.partial_cmp(&b.time).unwrap());
+
+        // Restore list
+        let mut write_lock = store.scores_list.write();
+        write_lock.insert(event_id, scores);
         
         Ok(warp::reply::with_status(
             "",
             http::StatusCode::CREATED,
         ))
-}*/
+}
 
 async fn get_scores_list(
     store: Store
@@ -133,14 +148,6 @@ async fn main() {
         .and(store_filter.clone())
         .and_then(get_scores_list);
 
-    /*let add_scores = warp::post()
-        .and(warp::path("v1"))
-        .and(warp::path("scores"))
-        .and(warp::path::end())
-        .and(post_json())
-        .and(store_filter.clone())
-        .and_then(update_scores_list);*/
-
 
     // Events
     let events_list_route = warp::get()
@@ -175,7 +182,17 @@ async fn main() {
         .and(store_filter.clone())
         .and_then(get_event_scores);
 
-    let routes = get_scores.or(events_list_route).or(event_creation_route).or(event_details_route).or(event_scores_route);
+    let score_creation_route = warp::post()
+        .and(warp::path("v1"))
+        .and(warp::path("events"))
+        .and(warp::path::param())
+        .and(warp::path("scores"))
+        .and(post_json())
+        .and(warp::path::end())
+        .and(store_filter.clone())
+        .and_then(create_score_entry);
+
+    let routes = get_scores.or(events_list_route).or(event_creation_route).or(event_details_route).or(event_scores_route).or(score_creation_route);
 
     warp::serve(accept_requests.and(routes))
         .run(([127, 0, 0, 1], 3030))
