@@ -1,3 +1,4 @@
+use std::env;
 use std::{thread, time::Duration, fs::File};
 use std::io::prelude::*;
 
@@ -8,9 +9,20 @@ const EVENTS_FILE: &str = "events.json";
 const SCORES_FILE: &str = "scores.json";
 
 pub fn start_save_cron(store: Store) {
+    let cron_interval_minutes: u64 = match env::var("PARKOUR_API_SAVE_TIMER") {
+        Ok(s) => {
+            log::info(&format!("Timer argument found ({} minutes).", s));
+            s.parse::<u64>().unwrap()
+        },
+        Err(_) => {
+            log::info("No timer argument was found, defaulting to 15 minutes.");
+            15
+        }
+    };
+
     thread::spawn(move || {
         loop {
-            thread::sleep(Duration::from_secs(15 * 60));
+            thread::sleep(Duration::from_secs(cron_interval_minutes * 60));
 
             // Scores
             let scores = store.scores_list.read().clone();
