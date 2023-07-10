@@ -31,3 +31,8 @@ cargo build -r
 # Build release build without glibc
 cargo build --target x86_64-unknown-linux-musl -r
 ```
+
+#### Environment variables
+
+* `PARKOUR_API_SAVE_TIMER`: duration (in minutes) between two state saves;
+* `PARKOUR_API_SECRET`: token that must be provided by clients under the `authentication` header to access API resources
