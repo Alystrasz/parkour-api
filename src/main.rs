@@ -195,6 +195,6 @@ async fn main() {
     let routes = get_scores.or(events_list_route).or(event_creation_route).or(event_details_route).or(event_scores_route).or(score_creation_route);
 
     warp::serve(accept_requests.and(routes))
-        .run(([127, 0, 0, 1], 3030))
+        .run(([0, 0, 0, 0], 3030))
         .await;
 }
