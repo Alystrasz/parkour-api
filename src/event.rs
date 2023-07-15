@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use serde::{Serialize, Deserialize};
 use uuid::Uuid;
 use warp::{http, Filter, hyper::StatusCode};
@@ -10,6 +12,7 @@ pub type Events = Vec<Event>;
 pub struct Event {
     name: String,
     pub id: Option<String>,
+    pub perks: Option<HashMap<String, String>>
 }
 
 pub async fn get_list(
@@ -35,7 +38,7 @@ pub async fn create_event(
 
         let event_id = Uuid::new_v4().to_string();
         let mut write_lock = store.events_list.write();
-        write_lock.push(Event { name: entry.name, id: Some(event_id.clone()) });
+        write_lock.push(Event { name: entry.name, id: Some(event_id.clone()), perks: Some(entry.perks).unwrap_or_else(|| { Some(HashMap::new()) }) });
 
         let mut scores_write_lock = store.scores_list.write();
         scores_write_lock.insert(event_id, [].to_vec());
