@@ -1,8 +1,8 @@
 mod persistence;
 pub mod log;
-pub mod event;
+pub mod map;
 
-use event::{Events, Event};
+use map::{Maps, Map};
 use persistence::{start_save_cron, load_state};
 use warp::{http, Filter, hyper::StatusCode};
 use parking_lot::RwLock;
@@ -20,28 +20,28 @@ struct ScoreEntry {
 #[derive(Clone)]
 pub struct Store {
   scores_list: Arc<RwLock<ScoreEntries>>,
-  events_list: Arc<RwLock<Events>>
+  maps_list: Arc<RwLock<Maps>>
 }
 
 impl Store {
     fn new() -> Self {
         Store {
             scores_list: Arc::new(RwLock::new(HashMap::new())),
-            events_list: Arc::new(RwLock::new(Vec::new())),
+            maps_list: Arc::new(RwLock::new(Vec::new())),
         }
     }
 }
 
-async fn get_event_scores(
+async fn get_map_scores(
     event_id: String,
     store: Store
 ) -> Result<impl warp::Reply, warp::Rejection> {
-    // Checking for existing event
-    let events: Vec<Event> = store.events_list.read().to_vec();
-    let index = events.iter().position(|e| e.id.clone().unwrap() == event_id).unwrap_or_else(|| { usize::MAX });
+    // Checking for existing map
+    let maps: Vec<Map> = store.maps_list.read().to_vec();
+    let index = maps.iter().position(|e| e.id.clone().unwrap() == event_id).unwrap_or_else(|| { usize::MAX });
     if index == usize::MAX {
         return Ok(warp::reply::with_status(
-            warp::reply::json(&"{\"error\": \"Event not found.\"}"),
+            warp::reply::json(&"{\"error\": \"Map not found.\"}"),
             StatusCode::NOT_FOUND,
         ));
     }
@@ -55,13 +55,13 @@ async fn get_event_scores(
 }
 
 async fn create_score_entry(
-    event_id: String,
+    map_id: String,
     entry: ScoreEntry,
     store: Store
     ) -> Result<impl warp::Reply, warp::Rejection> {
-        // Check if provided event exists
-        let events: Vec<Event> = store.events_list.read().to_vec();
-        let index = events.iter().position(|e| e.clone().id.unwrap() == event_id).unwrap_or_else(|| { usize::MAX });
+        // Check if provided map exists
+        let maps: Vec<Map> = store.maps_list.read().to_vec();
+        let index = maps.iter().position(|e| e.clone().id.unwrap() == map_id).unwrap_or_else(|| { usize::MAX });
         if index == usize::MAX {
             return Ok(warp::reply::with_status(
                 "",
@@ -70,7 +70,7 @@ async fn create_score_entry(
         }
 
         // Checking for existing entry
-        let mut scores = store.scores_list.read().get(&event_id).unwrap().clone();
+        let mut scores = store.scores_list.read().get(&map_id).unwrap().clone();
         let index = scores.iter().position(|e| e.name == entry.name).unwrap_or_else(|| { usize::MAX });
         if index != usize::MAX {
             let existing_entry = &scores[index];
@@ -95,7 +95,7 @@ async fn create_score_entry(
 
         // Restore list
         let mut write_lock = store.scores_list.write();
-        write_lock.insert(event_id, scores);
+        write_lock.insert(map_id, scores);
         
         Ok(warp::reply::with_status(
             "",
@@ -149,42 +149,42 @@ async fn main() {
         .and_then(get_scores_list);
 
 
-    // Events
-    let events_list_route = warp::get()
+    // Maps
+    let map_list_route = warp::get()
         .and(warp::path("v1"))
-        .and(warp::path("events"))
+        .and(warp::path("maps"))
         .and(warp::path::end())
         .and(store_filter.clone())
-        .and_then(event::get_list);
+        .and_then(map::get_list);
 
-    let event_creation_route = warp::post()
+    let map_creation_route = warp::post()
         .and(warp::path("v1"))
-        .and(warp::path("events"))
+        .and(warp::path("maps"))
         .and(warp::path::end())
-        .and(event::post_json())
+        .and(map::post_json())
         .and(store_filter.clone())
-        .and_then(event::create_event);
+        .and_then(map::create_map);
 
-    let event_details_route = warp::get()
+    let map_details_route = warp::get()
         .and(warp::path("v1"))
-        .and(warp::path("events"))
+        .and(warp::path("maps"))
         .and(warp::path::param())
         .and(warp::path::end())
         .and(store_filter.clone())
-        .and_then(event::get_event);
+        .and_then(map::get_map);
 
-    let event_scores_route = warp::get()
+    let map_scores_route = warp::get()
         .and(warp::path("v1"))
-        .and(warp::path("events"))
+        .and(warp::path("maps"))
         .and(warp::path::param())
         .and(warp::path("scores"))
         .and(warp::path::end())
         .and(store_filter.clone())
-        .and_then(get_event_scores);
+        .and_then(get_map_scores);
 
     let score_creation_route = warp::post()
         .and(warp::path("v1"))
-        .and(warp::path("events"))
+        .and(warp::path("maps"))
         .and(warp::path::param())
         .and(warp::path("scores"))
         .and(post_json())
@@ -192,7 +192,7 @@ async fn main() {
         .and(store_filter.clone())
         .and_then(create_score_entry);
 
-    let routes = get_scores.or(events_list_route).or(event_creation_route).or(event_details_route).or(event_scores_route).or(score_creation_route);
+    let routes = get_scores.or(map_list_route).or(map_creation_route).or(map_details_route).or(map_scores_route).or(score_creation_route);
 
     warp::serve(accept_requests.and(routes))
         .run(([0, 0, 0, 0], 3030))
