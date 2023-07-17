@@ -37,7 +37,6 @@ impl Store {
 }
 
 
-
 #[tokio::main]
 async fn main() {
     // Secret key
@@ -60,47 +59,10 @@ async fn main() {
     // Scores saving cron
     start_save_cron(store.clone());
 
-    let store_filter = warp::any().map(move || store.clone());
-
-
     // Routes
-
-    // Maps
-    let map_list_route = warp::get()
-        .and(warp::path("v1"))
-        .and(warp::path("events"))
-        .and(warp::path::param())
-        .and(warp::path("maps"))
-        .and(warp::path::end())
-        .and(store_filter.clone())
-        .and_then(map::get_list);
-
-    let map_creation_route = warp::post()
-        .and(warp::path("v1"))
-        .and(warp::path("events"))
-        .and(warp::path::param())
-        .and(warp::path("maps"))
-        .and(warp::path::end())
-        .and(map::post_json())
-        .and(store_filter.clone())
-        .and_then(map::create_map);
-
-    let get_all_events = warp::get()
-        .and(warp::path("v1"))
-        .and(warp::path("events"))
-        .and(warp::path::end())
-        .and(store_filter.clone())
-        .and_then(event::get_list);
-
-    let event_creation_route = warp::post()
-        .and(warp::path("v1"))
-        .and(warp::path("events"))
-        .and(warp::path::end())
-        .and(event::post_json())
-        .and(store_filter.clone())
-        .and_then(event::create_event);
-
-    let routes = map_creation_route.or(get_all_events).or(event_creation_route).or(map_list_route);
+    let map_routes = map::get_routes(store.clone());
+    let event_routes = event::get_routes(store);
+    let routes = event_routes.or(map_routes);
 
     warp::serve(accept_requests.and(routes))
         .run(([0, 0, 0, 0], 3030))

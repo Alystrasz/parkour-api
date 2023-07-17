@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use serde::{Serialize, Deserialize};
 use uuid::Uuid;
-use warp::{http, Filter, hyper::StatusCode};
+use warp::{http, Filter, hyper::StatusCode, Reply, Rejection};
 
 use crate::{Store, event::Event};
 
@@ -15,7 +15,7 @@ pub struct Map {
     pub perks: Option<HashMap<String, String>>
 }
 
-pub async fn get_list(
+async fn get_list(
     event_id: String,
     store: Store
     ) -> Result<impl warp::Reply, warp::Rejection> {
@@ -37,7 +37,7 @@ pub async fn get_list(
     ));
 }
 
-pub async fn create_map(
+async fn create_map(
     event_id: String,
     entry: Map,
     store: Store
@@ -79,4 +79,30 @@ pub async fn create_map(
 
 pub fn post_json() -> impl Filter<Extract = (Map,), Error = warp::Rejection> + Clone {
     warp::body::content_length_limit(1024 * 16).and(warp::body::json())
+}
+
+
+pub fn get_routes(store: Store) -> impl Filter<Extract = impl Reply, Error = Rejection> + Clone {
+    let store_filter = warp::any().map(move || store.clone());
+
+    let map_list_route = warp::get()
+        .and(warp::path("v1"))
+        .and(warp::path("events"))
+        .and(warp::path::param())
+        .and(warp::path("maps"))
+        .and(warp::path::end())
+        .and(store_filter.clone())
+        .and_then(get_list);
+
+    let map_creation_route = warp::post()
+        .and(warp::path("v1"))
+        .and(warp::path("events"))
+        .and(warp::path::param())
+        .and(warp::path("maps"))
+        .and(warp::path::end())
+        .and(post_json())
+        .and(store_filter.clone())
+        .and_then(create_map);
+
+    return map_list_route.or(map_creation_route);
 }
