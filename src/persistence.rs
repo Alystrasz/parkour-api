@@ -131,8 +131,8 @@ pub fn load_state(store: Store) {
         }
     };
     let mut write_lock = store.maps_list.write();
-    for value in serialized {
-        write_lock.push(value);
+    for (key, value) in serialized {
+        write_lock.insert(key, value);
     }
     log::info(&format!("Loaded maps list from \"{}\" file.", MAPS_FILE));
 }

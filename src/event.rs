@@ -42,6 +42,10 @@ pub async fn create_event(
         let mut write_lock = store.events_list.write();
         write_lock.push(Event { name: entry.name, description: entry.description, id: Some(event_id.clone()) });
 
+        // Create associated maps
+        let mut maps_write_lock = store.maps_list.write();
+        maps_write_lock.insert(event_id, [].to_vec());
+
         Ok(warp::reply::with_status(
             "",
             http::StatusCode::CREATED,
