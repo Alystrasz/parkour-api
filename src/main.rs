@@ -1,7 +1,9 @@
 mod persistence;
 pub mod log;
 pub mod map;
+mod event;
 
+use event::Events;
 use map::{Maps, Map};
 use persistence::{start_save_cron, load_state};
 use warp::{http, Filter, hyper::StatusCode};
@@ -19,6 +21,7 @@ struct ScoreEntry {
 
 #[derive(Clone)]
 pub struct Store {
+  events_list: Arc<RwLock<Events>>,  
   scores_list: Arc<RwLock<ScoreEntries>>,
   maps_list: Arc<RwLock<Maps>>
 }
@@ -26,6 +29,7 @@ pub struct Store {
 impl Store {
     fn new() -> Self {
         Store {
+            events_list: Arc::new(RwLock::new(Vec::new())),
             scores_list: Arc::new(RwLock::new(HashMap::new())),
             maps_list: Arc::new(RwLock::new(Vec::new())),
         }
@@ -192,7 +196,22 @@ async fn main() {
         .and(store_filter.clone())
         .and_then(create_score_entry);
 
-    let routes = get_scores.or(map_list_route).or(map_creation_route).or(map_details_route).or(map_scores_route).or(score_creation_route);
+    let get_all_events = warp::get()
+        .and(warp::path("v1"))
+        .and(warp::path("events"))
+        .and(warp::path::end())
+        .and(store_filter.clone())
+        .and_then(event::get_list);
+
+    let event_creation_route = warp::post()
+        .and(warp::path("v1"))
+        .and(warp::path("events"))
+        .and(warp::path::end())
+        .and(event::post_json())
+        .and(store_filter.clone())
+        .and_then(event::create_event);
+
+    let routes = get_scores.or(map_list_route).or(map_creation_route).or(map_details_route).or(map_scores_route).or(score_creation_route).or(get_all_events).or(event_creation_route);
 
     warp::serve(accept_requests.and(routes))
         .run(([0, 0, 0, 0], 3030))
