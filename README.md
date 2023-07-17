@@ -2,9 +2,17 @@
 
 ### Routes
 
-* `/v1/scores`:
-    * **GET**: obtain the list of scores
-    * **POST**: create a new score entry (with "name" and "time" keys in JSON body)
+* `/v1/events`:
+    * **GET**: obtain the list of events
+    * **POST**: create a new event
+
+* `/v1/events/:event_id/maps`
+    * **GET**: obtain the list of maps associated to the event
+    * **POST**: create a new map associated to the event
+
+* `/v1/events/:event_id/maps/:map_id/scores`
+    * **GET**: obtain the list of scores associated to the map
+    * **POST**: create a new score entry on the map scoreboard
 
 #### Security
 
