@@ -4,7 +4,8 @@ use std::io::prelude::*;
 
 use crate::event::Events;
 use crate::map::Maps;
-use crate::{Store, ScoreEntries, log};
+use crate::scores::ScoreEntries;
+use crate::{Store, log};
 
 const EVENTS_FILE: &str = "events.json";
 const MAPS_FILE: &str = "maps.json";

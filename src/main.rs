@@ -2,6 +2,7 @@ mod persistence;
 pub mod log;
 pub mod map;
 mod event;
+mod scores;
 
 use event::Events;
 use map::Maps;
@@ -9,20 +10,12 @@ use persistence::{start_save_cron, load_state};
 use warp::Filter;
 use parking_lot::RwLock;
 use std::{env, sync::Arc, collections::HashMap};
-use serde::{Serialize, Deserialize};
 
-type ScoreEntries = HashMap<String, Vec<ScoreEntry>>;
-
-#[derive(Debug, Deserialize, Serialize, Clone)]
-struct ScoreEntry {
-    name: String,
-    time: f32,
-}
 
 #[derive(Clone)]
 pub struct Store {
   events_list: Arc<RwLock<Events>>,  
-  scores_list: Arc<RwLock<ScoreEntries>>,
+  scores_list: Arc<RwLock<scores::ScoreEntries>>,
   maps_list: Arc<RwLock<Maps>>
 }
 
@@ -61,8 +54,9 @@ async fn main() {
 
     // Routes
     let map_routes = map::get_routes(store.clone());
-    let event_routes = event::get_routes(store);
-    let routes = event_routes.or(map_routes);
+    let event_routes = event::get_routes(store.clone());
+    let score_routes = scores::get_routes(store.clone());
+    let routes = event_routes.or(map_routes).or(score_routes);
 
     warp::serve(accept_requests.and(routes))
         .run(([0, 0, 0, 0], 3030))
