@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use serde::{Deserialize, Serialize};
 use warp::{hyper::StatusCode, http, Filter, Reply, Rejection};
 
-use crate::Store;
+use crate::{Store, map::Maps};
 
 pub type ScoreEntries = HashMap<String, Vec<ScoreEntry>>;
 
@@ -16,7 +16,7 @@ pub struct ScoreEntry {
 async fn get_list(
     map_id: String,
     store: Store
-    ) -> Result<impl warp::Reply, warp::Rejection> {
+    ) -> Result<impl Reply, Rejection> {
 
     let scores_read_lock = store.scores_list.read();
     if !scores_read_lock.contains_key(&map_id) {
@@ -29,11 +29,11 @@ async fn get_list(
     let scores = scores_read_lock.get(&map_id).unwrap();
     return Ok(warp::reply::with_status(
         warp::reply::json(&scores),
-        http::StatusCode::OK,
+        StatusCode::OK,
     ));
 }
 
-fn post_json() -> impl Filter<Extract = (ScoreEntry,), Error = warp::Rejection> + Clone {
+fn post_json() -> impl Filter<Extract = (ScoreEntry,), Error = Rejection> + Clone {
     warp::body::content_length_limit(1024 * 16).and(warp::body::json())
 }
 
@@ -41,54 +41,51 @@ async fn create_score_entry(
     map_id: String,
     entry: ScoreEntry,
     store: Store
-    ) -> Result<impl warp::Reply, warp::Rejection> {
+) -> Result<impl Reply, Rejection> {
 
-        // Check if provided map exists
-        let scores_read_lock = store.scores_list.read();
-        let optional_scores = scores_read_lock.get(&map_id);
-        if optional_scores.is_none() {
-            return Ok(warp::reply::with_status(
-                warp::reply::json(&"{\"message\": \"Map not found.\"}"),
-                StatusCode::NOT_FOUND,
-            ));
-        }
-
-        let mut scores = optional_scores.unwrap().clone();
-        let index = scores.iter().position(|e| e.name == entry.name).unwrap_or_else(|| { usize::MAX });
-        if index != usize::MAX {
-            let existing_entry = &scores[index];
-            // If existing entry is better than new entry, we keep the new entry
-            if entry.time >= existing_entry.time {
-                return Ok(warp::reply::with_status(
-                    warp::reply::json(&"{\"message\": \"Leaderboard contains a better score entry for this player.\"}"),
-                    http::StatusCode::ALREADY_REPORTED,
-                ));
-            }
-            // Else, we remove the existing entry
-            else {
-                scores.remove(index);
-            }
-        }
-        
-        // Create new entry
-        scores.push(ScoreEntry { name: entry.name, time: entry.time });
-
-        // Sort list by times
-        scores.sort_by(|a, b| a.time.partial_cmp(&b.time).unwrap());
-
-        println!("1");
-
-        // Restore list
-        let mut write_lock = store.scores_list.write();
-        write_lock.insert(map_id, scores.to_vec());
-
-        println!("2");
-
-        Ok(warp::reply::with_status(
-            warp::reply::json(&"Score created."),
-            http::StatusCode::CREATED,
+    // Check if provided map exists
+    let scores_map: ScoreEntries = store.scores_list.read().clone();
+    let optional_scores = scores_map.get(&map_id);
+    if optional_scores.is_none() {
+        return Ok(warp::reply::with_status(
+            warp::reply::json(&"Map not found."),
+            StatusCode::NOT_FOUND,
         ))
     }
+
+    let mut scores = optional_scores.unwrap().clone().to_vec();
+    // let mut scores = store.scores_list.read().get(&map_id).unwrap().to_vec();
+    let index = scores.iter().position(|e| e.name == entry.name).unwrap_or(usize::MAX);
+    if index != usize::MAX {
+        let existing_entry = &scores[index];
+        // If existing entry is better than new entry, we keep the new entry
+        if entry.time >= existing_entry.time {
+            return Ok(warp::reply::with_status(
+                warp::reply::json(&"{\"message\": \"Leaderboard contains a better score entry for this player.\"}"),
+                StatusCode::ALREADY_REPORTED,
+            ));
+        }
+        // Else, we remove the existing entry
+        else {
+            scores.remove(index);
+        }
+    }
+
+    // Create new entry
+    scores.push(ScoreEntry { name: entry.name, time: entry.time });
+
+    // Sort list by times
+    scores.sort_by(|a, b| a.time.partial_cmp(&b.time).unwrap());
+
+    // Restore list
+    let mut write_lock = store.scores_list.write();
+    write_lock.insert(map_id, scores.to_vec());
+
+    Ok(warp::reply::with_status(
+        warp::reply::json(&"Score created."),
+        StatusCode::CREATED,
+    ))
+}
 
 pub fn get_routes(store: Store) -> impl Filter<Extract = impl Reply, Error = Rejection> + Clone {
     let store_filter = warp::any().map(move || store.clone());
