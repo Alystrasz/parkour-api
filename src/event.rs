@@ -15,22 +15,22 @@ pub struct Event {
 
 async fn get_list(
     store: Store
-    ) -> Result<impl warp::Reply, warp::Rejection> {
+    ) -> Result<impl Reply, Rejection> {
         let r = store.events_list.read();
         Ok(warp::reply::json(&*r))
 }
 
-pub fn post_json() -> impl Filter<Extract = (Event,), Error = warp::Rejection> + Clone {
+pub fn post_json() -> impl Filter<Extract = (Event,), Error = Rejection> + Clone {
     warp::body::content_length_limit(1024 * 16).and(warp::body::json())
 }
 
 async fn create_event(
     entry: Event,
     store: Store
-    ) -> Result<impl warp::Reply, warp::Rejection> {
+    ) -> Result<impl Reply, Rejection> {
         // Checking for existing event
         let events: Vec<Event> = store.events_list.read().to_vec();
-        let index = events.iter().position(|e| e.name == entry.name).unwrap_or_else(|| { usize::MAX });
+        let index = events.iter().position(|e| e.name == entry.name).unwrap_or(usize::MAX);
         if index != usize::MAX {
             return Ok(warp::reply::with_status(
                 "",
@@ -68,8 +68,8 @@ pub fn get_routes(store: Store) -> impl Filter<Extract = impl Reply, Error = Rej
         .and(warp::path("events"))
         .and(warp::path::end())
         .and(post_json())
-        .and(store_filter.clone())
+        .and(store_filter)
         .and_then(create_event);
 
-    return get_all_events.or(event_creation_route);
+    get_all_events.or(event_creation_route)
 }

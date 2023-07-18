@@ -1,9 +1,9 @@
 use std::collections::HashMap;
 
 use serde::{Deserialize, Serialize};
-use warp::{hyper::StatusCode, http, Filter, Reply, Rejection};
+use warp::{hyper::StatusCode, Filter, Reply, Rejection};
 
-use crate::{Store, map::Maps};
+use crate::Store;
 
 pub type ScoreEntries = HashMap<String, Vec<ScoreEntry>>;
 
@@ -27,10 +27,10 @@ async fn get_list(
     }
 
     let scores = scores_read_lock.get(&map_id).unwrap();
-    return Ok(warp::reply::with_status(
+    Ok(warp::reply::with_status(
         warp::reply::json(&scores),
         StatusCode::OK,
-    ));
+    ))
 }
 
 fn post_json() -> impl Filter<Extract = (ScoreEntry,), Error = Rejection> + Clone {
@@ -107,8 +107,8 @@ pub fn get_routes(store: Store) -> impl Filter<Extract = impl Reply, Error = Rej
         .and(warp::path("scores"))
         .and(warp::path::end())
         .and(post_json())
-        .and(store_filter.clone())
+        .and(store_filter)
         .and_then(create_score_entry);
 
-    return scores_list_route.or(score_creation_route);
+    scores_list_route.or(score_creation_route)
 }

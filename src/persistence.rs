@@ -43,7 +43,7 @@ pub fn start_save_cron(store: Store) {
                     std::process::exit(3);
                 }
             };
-            match buffer.write(str.as_bytes()) {
+            match buffer.write_all(str.as_bytes()) {
                 Ok(str) => str,
                 Err(err) => {
                     log::error(&format!("Failed writing scores list to file [{}].", err));
@@ -68,7 +68,7 @@ pub fn start_save_cron(store: Store) {
                     std::process::exit(3);
                 }
             };
-            match buffer.write(str.as_bytes()) {
+            match buffer.write_all(str.as_bytes()) {
                 Ok(str) => str,
                 Err(err) => {
                     log::error(&format!("Failed writing maps list to file [{}].", err));
@@ -93,7 +93,7 @@ pub fn start_save_cron(store: Store) {
                     std::process::exit(3);
                 }
             };
-            match buffer.write(str.as_bytes()) {
+            match buffer.write_all(str.as_bytes()) {
                 Ok(str) => str,
                 Err(err) => {
                     log::error(&format!("Failed writing events list to file [{}].", err));

@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use serde::{Serialize, Deserialize};
 use uuid::Uuid;
-use warp::{http, Filter, hyper::StatusCode, Reply, Rejection};
+use warp::{Filter, hyper::StatusCode, Reply, Rejection};
 
 use crate::{Store, event::Event};
 
@@ -18,10 +18,10 @@ pub struct Map {
 async fn get_list(
     event_id: String,
     store: Store
-    ) -> Result<impl warp::Reply, warp::Rejection> {
+    ) -> Result<impl Reply, Rejection> {
     // Checking for existing event
     let events: Vec<Event> = store.events_list.read().to_vec();
-    let index = events.iter().position(|e| e.id.clone().unwrap() == event_id).unwrap_or_else(|| { usize::MAX });
+    let index = events.iter().position(|e| e.id.clone().unwrap() == event_id).unwrap_or(usize::MAX);
     if index == usize::MAX {
         return Ok(warp::reply::with_status(
             warp::reply::json(&"{\"error\": \"Event not found.\"}"),
@@ -31,20 +31,20 @@ async fn get_list(
 
     let read_lock = store.maps_list.read();
     let maps = read_lock.get(&event_id).unwrap();
-    return Ok(warp::reply::with_status(
+    Ok(warp::reply::with_status(
         warp::reply::json(&maps),
-        http::StatusCode::OK,
-    ));
+        StatusCode::OK,
+    ))
 }
 
 async fn create_map(
     event_id: String,
     entry: Map,
     store: Store
-    ) -> Result<impl warp::Reply, warp::Rejection> {
+    ) -> Result<impl Reply, Rejection> {
         // Check if the event exists
         let events: Vec<Event> = store.events_list.read().to_vec();
-        let index = events.iter().position(|e| e.id.clone().unwrap() == event_id).unwrap_or_else(|| { usize::MAX });
+        let index = events.iter().position(|e| e.id.clone().unwrap() == event_id).unwrap_or(usize::MAX);
         if index == usize::MAX {
             return Ok(warp::reply::with_status(
                 warp::reply::json(&"{\"error\": \"Event not found.\"}"),
@@ -54,11 +54,11 @@ async fn create_map(
 
         // Checking for existing map
         let mut maps: Vec<Map> = store.maps_list.read().get(&event_id).unwrap().to_vec();
-        let index = maps.iter().position(|e| e.map_name == entry.map_name).unwrap_or_else(|| { usize::MAX });
+        let index = maps.iter().position(|e| e.map_name == entry.map_name).unwrap_or(usize::MAX);
         if index != usize::MAX {
             return Ok(warp::reply::with_status(
                 warp::reply::json(&"{\"error\": \"Map already exists.\"}"),
-                http::StatusCode::ALREADY_REPORTED,
+                StatusCode::ALREADY_REPORTED,
             ));
         }
 
@@ -73,11 +73,11 @@ async fn create_map(
 
         Ok(warp::reply::with_status(
             warp::reply::json(&"{\"message\": \"Map successfully created.\"}"),
-            http::StatusCode::CREATED,
+            StatusCode::CREATED,
         ))
 }
 
-pub fn post_json() -> impl Filter<Extract = (Map,), Error = warp::Rejection> + Clone {
+pub fn post_json() -> impl Filter<Extract = (Map,), Error = Rejection> + Clone {
     warp::body::content_length_limit(1024 * 16).and(warp::body::json())
 }
 
@@ -101,8 +101,8 @@ pub fn get_routes(store: Store) -> impl Filter<Extract = impl Reply, Error = Rej
         .and(warp::path("maps"))
         .and(warp::path::end())
         .and(post_json())
-        .and(store_filter.clone())
+        .and(store_filter)
         .and_then(create_map);
 
-    return map_list_route.or(map_creation_route);
+    map_list_route.or(map_creation_route)
 }
