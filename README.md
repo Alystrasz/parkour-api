@@ -10,13 +10,13 @@
     * **GET**: obtain the list of maps associated to the event
     * **POST**: create a new map associated to the event
 
-* `/v1/events/:event_id/maps/:map_id/scores`
+* `/v1/maps/:map_id/scores`
     * **GET**: obtain the list of scores associated to the map
     * **POST**: create a new score entry on the map scoreboard
 
 #### Security
 
-Before launching, you need to setup a secret which will be used to authenticate servers.
+Before launching, you need to set up a secret which will be used to authenticate servers.
 
 ```shell
 # On Windows:
