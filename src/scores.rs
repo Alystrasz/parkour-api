@@ -13,6 +13,8 @@ pub struct ScoreEntry {
     time: f32,
 }
 
+/// Retrives scores list associated to a map id.
+/// 
 async fn get_list(
     map_id: String,
     store: Store
@@ -33,10 +35,14 @@ async fn get_list(
     ))
 }
 
+/// This middleware creates `Score` payloads from POST request bodies.
+/// 
 fn post_json() -> impl Filter<Extract = (ScoreEntry,), Error = Rejection> + Clone {
     warp::body::content_length_limit(1024 * 16).and(warp::body::json())
 }
 
+/// Creates a score entry on a given map, based on its map identifier.
+/// 
 async fn create_score_entry(
     map_id: String,
     entry: ScoreEntry,
@@ -54,7 +60,6 @@ async fn create_score_entry(
     }
 
     let mut scores = optional_scores.unwrap().clone().to_vec();
-    // let mut scores = store.scores_list.read().get(&map_id).unwrap().to_vec();
     let index = scores.iter().position(|e| e.name == entry.name).unwrap_or(usize::MAX);
     if index != usize::MAX {
         let existing_entry = &scores[index];
@@ -87,6 +92,11 @@ async fn create_score_entry(
     ))
 }
 
+
+/// Returns all score-associated routes:
+///     * one route to list a map's scores;
+///     * one route to create scores on a given map.
+/// 
 pub fn get_routes(store: Store) -> impl Filter<Extract = impl Reply, Error = Rejection> + Clone {
     let store_filter = warp::any().map(move || store.clone());
 
