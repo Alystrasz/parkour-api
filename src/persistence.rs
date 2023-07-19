@@ -11,6 +11,12 @@ const EVENTS_FILE: &str = "events.json";
 const MAPS_FILE: &str = "maps.json";
 const SCORES_FILE: &str = "scores.json";
 
+
+/// Starts a thread that will save store state to JSON files every few seconds.
+/// 
+/// The time between two consecutive saves is 15 minutes by default, and can be
+/// customized with the `PARKOUR_API_SAVE_TIMER` environment variable.
+/// 
 pub fn start_save_cron(store: Store) {
     let cron_interval_minutes: u64 = match env::var("PARKOUR_API_SAVE_TIMER") {
         Ok(s) => {
@@ -105,6 +111,10 @@ pub fn start_save_cron(store: Store) {
     });
 }
 
+
+/// Called when the API is started, this method checks if state was previously
+/// stored in JSON files, and loads up store state from them if possible.
+/// 
 pub fn load_state(store: Store) {
     // Scores
     let mut file = match File::open(SCORES_FILE) {
