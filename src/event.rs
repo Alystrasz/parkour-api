@@ -13,6 +13,9 @@ pub struct Event {
     pub id: Option<String>
 }
 
+
+/// Returns the list of all events.
+/// 
 async fn get_list(
     store: Store
     ) -> Result<impl Reply, Rejection> {
@@ -20,10 +23,16 @@ async fn get_list(
         Ok(warp::reply::json(&*r))
 }
 
+
+/// This middleware creates `Event` payloads from POST request bodies.
+/// 
 pub fn post_json() -> impl Filter<Extract = (Event,), Error = Rejection> + Clone {
     warp::body::content_length_limit(1024 * 16).and(warp::body::json())
 }
 
+
+/// Creates an event (lol).
+/// 
 async fn create_event(
     entry: Event,
     store: Store
@@ -53,6 +62,10 @@ async fn create_event(
 }
 
 
+/// Returns all event-associated routes:
+///     * one route to list all events;
+///     * one route to create events.
+/// 
 pub fn get_routes(store: Store) -> impl Filter<Extract = impl Reply, Error = Rejection> + Clone {
     let store_filter = warp::any().map(move || store.clone());
 

@@ -15,6 +15,9 @@ pub struct Map {
     pub perks: Option<HashMap<String, String>>
 }
 
+
+/// Gets the list of maps associated to a given event.
+/// 
 async fn get_list(
     event_id: String,
     store: Store
@@ -37,6 +40,9 @@ async fn get_list(
     ))
 }
 
+
+/// Creates a map that's associated to the input event.
+/// 
 async fn create_map(
     event_id: String,
     entry: Map,
@@ -77,11 +83,18 @@ async fn create_map(
         ))
 }
 
+
+/// This middleware creates `Map` payloads from POST request bodies.
+/// 
 pub fn post_json() -> impl Filter<Extract = (Map,), Error = Rejection> + Clone {
     warp::body::content_length_limit(1024 * 16).and(warp::body::json())
 }
 
 
+/// Returns all map-associated routes:
+///     * one route to list an event's maps;
+///     * one route to create maps on a given event.
+/// 
 pub fn get_routes(store: Store) -> impl Filter<Extract = impl Reply, Error = Rejection> + Clone {
     let store_filter = warp::any().map(move || store.clone());
 

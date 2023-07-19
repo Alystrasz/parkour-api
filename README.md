@@ -1,5 +1,11 @@
 # Parkour leaderboard API
 
+### Global architecture
+
+* `Events` are the basis entity on this API; think of them like Overwatch seasons, for instance. They have a beginning and an ending date, and link to several maps;
+* `Maps` associate a parkour configuration to an in-game map; each map features a global scoreboard;
+* `Scores` store players performances for each map.
+
 ### Routes
 
 * `/v1/events`:
