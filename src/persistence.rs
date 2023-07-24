@@ -3,11 +3,20 @@ use std::{thread, time::Duration, fs::File};
 use std::io::prelude::*;
 
 use crate::event::Events;
-use crate::{Store, ScoreEntries, log};
+use crate::map::Maps;
+use crate::scores::ScoreEntries;
+use crate::{Store, log};
 
 const EVENTS_FILE: &str = "events.json";
+const MAPS_FILE: &str = "maps.json";
 const SCORES_FILE: &str = "scores.json";
 
+
+/// Starts a thread that will save store state to JSON files every few seconds.
+/// 
+/// The time between two consecutive saves is 15 minutes by default, and can be
+/// customized with the `PARKOUR_API_SAVE_TIMER` environment variable.
+/// 
 pub fn start_save_cron(store: Store) {
     let cron_interval_minutes: u64 = match env::var("PARKOUR_API_SAVE_TIMER") {
         Ok(s) => {
@@ -40,7 +49,7 @@ pub fn start_save_cron(store: Store) {
                     std::process::exit(3);
                 }
             };
-            match buffer.write(str.as_bytes()) {
+            match buffer.write_all(str.as_bytes()) {
                 Ok(str) => str,
                 Err(err) => {
                     log::error(&format!("Failed writing scores list to file [{}].", err));
@@ -48,6 +57,31 @@ pub fn start_save_cron(store: Store) {
                 }
             };
             log::info("Saved scores to local file.");
+
+            // Maps
+            let maps = store.maps_list.read().clone();
+            let mut buffer = match File::create(MAPS_FILE) {
+                Ok(file) => file,
+                Err(err) => {
+                    log::error(&format!("\"{}\" file could not be created [{}].", MAPS_FILE, err));
+                    std::process::exit(3);
+                }
+            };
+            let str = match serde_json::to_string(&maps) {
+                Ok(str) => str,
+                Err(err) => {
+                    log::error(&format!("Failed serializing maps list [{}].", err));
+                    std::process::exit(3);
+                }
+            };
+            match buffer.write_all(str.as_bytes()) {
+                Ok(str) => str,
+                Err(err) => {
+                    log::error(&format!("Failed writing maps list to file [{}].", err));
+                    std::process::exit(3);
+                }
+            };
+            log::info("Saved maps to local file.");
 
             // Events
             let events = store.events_list.read().clone();
@@ -65,7 +99,7 @@ pub fn start_save_cron(store: Store) {
                     std::process::exit(3);
                 }
             };
-            match buffer.write(str.as_bytes()) {
+            match buffer.write_all(str.as_bytes()) {
                 Ok(str) => str,
                 Err(err) => {
                     log::error(&format!("Failed writing events list to file [{}].", err));
@@ -77,6 +111,10 @@ pub fn start_save_cron(store: Store) {
     });
 }
 
+
+/// Called when the API is started, this method checks if state was previously
+/// stored in JSON files, and loads up store state from them if possible.
+/// 
 pub fn load_state(store: Store) {
     // Scores
     let mut file = match File::open(SCORES_FILE) {
@@ -106,6 +144,35 @@ pub fn load_state(store: Store) {
         write_lock.insert(key, value);
     }
     log::info(&format!("Loaded scores list from \"{}\" file.", SCORES_FILE));
+
+    // Maps
+    let mut file = match File::open(MAPS_FILE) {
+        Ok(file) => file,
+        Err(_) => {
+            log::info(&format!("\"{}\" file does not exist, initializing maps list as empty.", MAPS_FILE));
+            return;
+        }
+    };
+    let mut data = String::new();
+    match file.read_to_string(&mut data) {
+        Ok(_) => (),
+        Err(err) => {
+            log::error(&format!("Failed reading \"{}\" file [{}].", MAPS_FILE, err));
+            std::process::exit(2);
+        }
+    };
+    let serialized: Maps = match serde_json::from_str::<Maps>(&data) {
+        Ok(data) => data,
+        Err(err) => {
+            log::error(&format!("Failed deserializing maps list [{}].", err));
+            std::process::exit(2);
+        }
+    };
+    let mut write_lock = store.maps_list.write();
+    for (key, value) in serialized {
+        write_lock.insert(key, value);
+    }
+    log::info(&format!("Loaded maps list from \"{}\" file.", MAPS_FILE));
 
     // Events
     let mut file = match File::open(EVENTS_FILE) {
