@@ -3,9 +3,11 @@ pub mod log;
 pub mod map;
 mod event;
 mod scores;
+pub mod map_configuration;
 
 use event::Events;
 use map::Maps;
+use map_configuration::MapConfigurations;
 use persistence::{start_save_cron, load_state};
 use warp::Filter;
 use parking_lot::RwLock;
@@ -16,7 +18,8 @@ use std::{env, sync::Arc, collections::HashMap};
 pub struct Store {
   events_list: Arc<RwLock<Events>>,  
   scores_list: Arc<RwLock<scores::ScoreEntries>>,
-  maps_list: Arc<RwLock<Maps>>
+  maps_list: Arc<RwLock<Maps>>,
+  configurations_list: Arc<RwLock<MapConfigurations>>
 }
 
 impl Store {
@@ -25,6 +28,7 @@ impl Store {
             events_list: Arc::new(RwLock::new(Vec::new())),
             scores_list: Arc::new(RwLock::new(HashMap::new())),
             maps_list: Arc::new(RwLock::new(HashMap::new())),
+            configurations_list: Arc::new(RwLock::new(HashMap::new()))
         }
     }
 }
@@ -56,7 +60,8 @@ async fn main() {
     let map_routes = map::get_routes(store.clone());
     let event_routes = event::get_routes(store.clone());
     let score_routes = scores::get_routes(store.clone());
-    let routes = event_routes.or(map_routes).or(score_routes);
+    let config_routes = map_configuration::get_routes(store.clone());
+    let routes = event_routes.or(map_routes).or(score_routes).or(config_routes);
 
     warp::serve(accept_requests.and(routes))
         .run(([0, 0, 0, 0], 3030))
