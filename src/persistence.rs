@@ -4,12 +4,14 @@ use std::io::prelude::*;
 
 use crate::event::Events;
 use crate::map::Maps;
+use crate::map_configuration::MapConfigurations;
 use crate::scores::ScoreEntries;
 use crate::{Store, log};
 
 const EVENTS_FILE: &str = "events.json";
 const MAPS_FILE: &str = "maps.json";
 const SCORES_FILE: &str = "scores.json";
+const CONFIGURATIONS_FILE: &str = "configurations.json";
 
 
 /// Starts a thread that will save store state to JSON files every few seconds.
@@ -107,6 +109,31 @@ pub fn start_save_cron(store: Store) {
                 }
             };
             log::info("Saved events to local file.");
+
+            // Configurations
+            let configurations = store.configurations_list.read().clone();
+            let mut buffer = match File::create(CONFIGURATIONS_FILE) {
+                Ok(file) => file,
+                Err(err) => {
+                    log::error(&format!("\"{}\" file could not be created [{}].", CONFIGURATIONS_FILE, err));
+                    std::process::exit(3);
+                }
+            };
+            let str = match serde_json::to_string(&configurations) {
+                Ok(str) => str,
+                Err(err) => {
+                    log::error(&format!("Failed serializing configurations list [{}].", err));
+                    std::process::exit(3);
+                }
+            };
+            match buffer.write_all(str.as_bytes()) {
+                Ok(str) => str,
+                Err(err) => {
+                    log::error(&format!("Failed writing configurations list to file [{}].", err));
+                    std::process::exit(3);
+                }
+            };
+            log::info("Saved configurations to local file.");
         }
     });
 }
@@ -202,4 +229,33 @@ pub fn load_state(store: Store) {
         write_lock.push(value);
     }
     log::info(&format!("Loaded events list from \"{}\" file.", EVENTS_FILE));
+
+    // Configurations
+    let mut file = match File::open(CONFIGURATIONS_FILE) {
+        Ok(file) => file,
+        Err(_) => {
+            log::info(&format!("\"{}\" file does not exist, initializing configurations list as empty.", CONFIGURATIONS_FILE));
+            return;
+        }
+    };
+    let mut data = String::new();
+    match file.read_to_string(&mut data) {
+        Ok(_) => (),
+        Err(err) => {
+            log::error(&format!("Failed reading \"{}\" file [{}].", CONFIGURATIONS_FILE, err));
+            std::process::exit(2);
+        }
+    };
+    let serialized: MapConfigurations = match serde_json::from_str::<MapConfigurations>(&data) {
+        Ok(data) => data,
+        Err(err) => {
+            log::error(&format!("Failed deserializing configurations list [{}].", err));
+            std::process::exit(2);
+        }
+    };
+    let mut write_lock = store.configurations_list.write();
+    for (key, value) in serialized {
+        write_lock.insert(key, value);
+    }
+    log::info(&format!("Loaded configurations list from \"{}\" file.", CONFIGURATIONS_FILE));
 }
