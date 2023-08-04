@@ -2,7 +2,7 @@
 
 ### Global architecture
 
-* `Events` are the basis entity on this API; think of them like Overwatch seasons, for instance. They have a beginning and an ending date, and link to several maps;
+* `Events` are the basis entity on this API; think of them like Overwatch seasons, for instance. They have a beginning and an ending date (`start` and `end` fields, in *seconds* since Epoch), and link to several maps;
 * `Maps` associate a parkour configuration to an in-game map; each map features a global scoreboard;
 * `Scores` store players performances for each map;
 * `MapConfigurations` contain in-game coordinates for map entities such as checkpoints and ziplines (a configuration example for the `mp_thaw` map is available in the `docs` directory).

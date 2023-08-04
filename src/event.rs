@@ -10,6 +10,8 @@ pub type Events = Vec<Event>;
 pub struct Event {
     name: String,
     description: String,
+    start: i64,
+    end: i64,
     pub id: Option<String>
 }
 
@@ -49,7 +51,7 @@ async fn create_event(
 
         let event_id = Uuid::new_v4().to_string();
         let mut write_lock = store.events_list.write();
-        write_lock.push(Event { name: entry.name, description: entry.description, id: Some(event_id.clone()) });
+        write_lock.push(Event { name: entry.name, description: entry.description, start: entry.start, end: entry.end, id: Some(event_id.clone()) });
 
         // Create associated maps
         let mut maps_write_lock = store.maps_list.write();
