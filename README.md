@@ -4,7 +4,8 @@
 
 * `Events` are the basis entity on this API; think of them like Overwatch seasons, for instance. They have a beginning and an ending date, and link to several maps;
 * `Maps` associate a parkour configuration to an in-game map; each map features a global scoreboard;
-* `Scores` store players performances for each map.
+* `Scores` store players performances for each map;
+* `MapConfigurations` contain in-game coordinates for map entities such as checkpoints and ziplines (a configuration example for the `mp_thaw` map is available in the `docs` directory).
 
 ### Routes
 
@@ -19,6 +20,10 @@
 * `/v1/maps/:map_id/scores`
     * **GET**: obtain the list of scores associated to the map
     * **POST**: create a new score entry on the map scoreboard
+
+* `/v1/maps/:map_id/configuration`
+    * **GET**: get the map configuration
+    * **POST**: update the map configuration
 
 #### Security
 
