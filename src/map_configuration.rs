@@ -85,6 +85,29 @@ async fn create_map_configuration(
 }
 
 
+/// Get map configuration.
+/// 
+async fn get_map_configuration(
+    map_id: String,
+    store: Store
+) -> Result<impl Reply, Rejection> {
+
+    let configurations_read_lock = store.configurations_list.read();
+    if !configurations_read_lock.contains_key(&map_id) {
+        return Ok(warp::reply::with_status(
+            warp::reply::json(&"Configuration not found."),
+            StatusCode::NOT_FOUND,
+        ));
+    }
+
+    let configuration = configurations_read_lock.get(&map_id).unwrap();
+    Ok(warp::reply::with_status(
+        warp::reply::json(&configuration),
+        StatusCode::OK,
+    ))
+}
+
+
 /// Returns all map configuration routes:
 ///     * one route to get a map's configuration;
 ///     * one route to create map configuration.
@@ -99,9 +122,18 @@ pub fn get_routes(store: Store) -> impl Filter<Extract = impl Reply, Error = Rej
         .and(warp::path("configuration"))
         .and(warp::path::end())
         .and(post_json())
-        .and(store_filter)
+        .and(store_filter.clone())
         .and_then(create_map_configuration);
 
-        configuration_creation_route
+    let get_configuration_route = warp::get()
+        .and(warp::path("v1"))
+        .and(warp::path("maps"))
+        .and(warp::path::param())
+        .and(warp::path("configuration"))
+        .and(warp::path::end())
+        .and(store_filter)
+        .and_then(get_map_configuration);
+
+    configuration_creation_route.or(get_configuration_route)
 }
 
