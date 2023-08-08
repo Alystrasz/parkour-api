@@ -4,6 +4,7 @@ pub mod map;
 mod event;
 mod scores;
 pub mod map_configuration;
+mod scoreboard;
 
 use event::Events;
 use map::Maps;
@@ -63,7 +64,9 @@ async fn main() {
     let config_routes = map_configuration::get_routes(store.clone());
     let routes = event_routes.or(map_routes).or(score_routes).or(config_routes);
 
-    warp::serve(accept_requests.and(routes))
+    let scoreboard_route = scoreboard::get_routes(store);
+
+    warp::serve(accept_requests.and(routes).or(scoreboard_route))
         .run(([0, 0, 0, 0], 3030))
         .await;
 }
