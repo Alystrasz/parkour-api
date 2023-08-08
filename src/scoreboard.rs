@@ -28,14 +28,15 @@ pub fn get_routes(store: Store) -> impl Filter<Extract = impl Reply, Error = Rej
         <html>
             <head>
                 <title>Parkour scoreboard</title>
+                <link href=\"assets/style.css\" rel=\"stylesheet\" />
             </head>
             <body>
                 <h1>Parkour scoreboard</h1>
                 <table>
-                    <tr>
+                    <tr id=\"header\">
                         <th>Position</th>
                         <th>Player name</th>
-                        <th>Time</th>
+                        <th>Time (seconds)</th>
                     </tr>
                     {{#each scores}}
                     <tr>

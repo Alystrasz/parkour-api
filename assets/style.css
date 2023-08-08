@@ -1,0 +1,46 @@
+body {
+    background-color: #141a32;
+    color: white;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 1rem;
+}
+
+h1 {
+    margin: 10px auto 20px auto;
+    width: 20rem;
+}
+
+table {
+    margin: 0 auto;
+}
+
+tr:hover {
+    background: #37405D !important;
+}
+
+tr:nth-child(odd) {
+    background: #2C3147;
+}
+
+#header, tr:nth-child(even) {
+    background: #20263C;
+}
+
+#header th {
+    padding: 10px;
+}
+
+#header th:nth-child(1) {
+    width: 5rem;
+}
+#header th:nth-child(2) {
+    width: 15rem;
+}
+#header th:nth-child(3) {
+    width: 10rem;
+}
+
+th, td {
+    padding: 5px 10px;
+    text-align: center;
+}
