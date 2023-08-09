@@ -18,13 +18,14 @@
                 </div>
             </nav>
             <div id="scores">
-                <table>
+                {{#each scores}}
+                <table id="{{@key}}">
                     <tr id="header">
                         <th>Position</th>
                         <th>Player name</th>
                         <th>Time (seconds)</th>
                     </tr>
-                    {{#each scores}}
+                    {{#each this}}
                     <tr>
                         <td>{{@index}}</td>
                         <td>{{this.name}}</td>
@@ -32,6 +33,7 @@
                     </tr>
                     {{/each}}
                 </table>
+                {{/each}}
             </div>
         </div>
     </body>
