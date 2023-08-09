@@ -17,6 +17,10 @@ body {
     width: 100%;
 }
 
+#content > nav {
+    flex: 1;
+}
+
 h1 {
     margin: 10px auto 20px auto;
     width: 20rem;
@@ -35,18 +39,19 @@ h1 {
 }
 
 #scores {
-    overflow-y: scroll;
+    overflow-y: auto;
+    flex: 6;
 }
 
 tr:hover {
     background: #37405D !important;
 }
 
-tr:nth-child(odd) {
+tr:nth-child(even) {
     background: #2C3147;
 }
 
-#header, tr:nth-child(even) {
+#header, tr:nth-child(odd) {
     background: #20263C;
 }
 
@@ -67,4 +72,11 @@ tr:nth-child(odd) {
 th, td {
     padding: 5px 10px;
     text-align: center;
+}
+
+
+/* Maps selection */
+#maps img {
+    width: 90%;
+    margin: 5%;
 }
