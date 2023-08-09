@@ -67,12 +67,23 @@ pub fn get_routes(store: Store) -> impl Filter<Extract = impl Reply, Error = Rej
         std::process::exit(42);
     }
 
+    // Find associated maps
+    let event = corresponding_events.first().unwrap().clone();
+    let event_id = event.id.unwrap();
+    let maps = store.clone().maps_list.read().clone();
+    if !maps.contains_key(&event_id) {
+        log::error("Current event features no map.");
+        std::process::exit(1);
+    }
+    let corresponding_maps = maps.get(&event_id).unwrap().clone();
+
     let get_scoreboard_route = warp::get()
         .and(warp::path::end())
         .map(move || WithTemplate {
             name: "template.html",
             value: json!({
                 "event": corresponding_events.clone().first(),
+                "maps": corresponding_maps,
                 "scores": store.clone().scores_list.read().get("b75bd077-7198-4c5a-ba32-33e16202f320").unwrap().to_vec()
             }),
         })

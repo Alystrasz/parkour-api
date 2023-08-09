@@ -11,6 +11,11 @@
                     <h1>{{event.name}}</h1>
                     <h2>{{event.description}}</h2>
                 </div>
+                <div id="maps">
+                    {{#each maps}}
+                        <li>{{this.map_name}}</li>
+                    {{/each}}
+                </div>
             </nav>
             <div id="scores">
                 <table>
