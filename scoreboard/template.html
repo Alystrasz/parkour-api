@@ -19,7 +19,7 @@
             </nav>
             <div id="scores">
                 {{#each scores}}
-                <table id="{{@key}}">
+                <table id="{{@key}}" class="map_scores">
                     <tr id="header">
                         <th>Position</th>
                         <th>Player name</th>
@@ -36,5 +36,8 @@
                 {{/each}}
             </div>
         </div>
+        <footer>
+            <script type="application/javascript" src="assets/main.js"></script>
+        </footer>
     </body>
 </html>

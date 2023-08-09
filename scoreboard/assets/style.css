@@ -22,6 +22,14 @@ h1 {
     width: 20rem;
 }
 
+/* Displayed table is selected through javascript */
+.map_scores {
+    display: none;
+}
+.map_scores[show] {
+    display: table;
+}
+
 #scores, #scores table {
     width: 100%;
 }
