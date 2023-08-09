@@ -19,4 +19,16 @@ function initDocument() {
     selected_table.setAttribute('show', '');
 }
 
+function displayTable(tableId) {
+    // Hide all tables
+    let tables = document.querySelectorAll('.map_scores');
+    for (let i=0; i<tables.length; i++) {
+        tables[i].removeAttribute('show');
+    }
+
+    // Show table
+    let table = document.querySelector('#' + tableId);
+    table.setAttribute('show', '');
+}
+
 document.addEventListener('DOMContentLoaded', initDocument);

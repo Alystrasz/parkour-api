@@ -13,13 +13,13 @@
                 </div>
                 <div id="maps">
                     {{#each maps}}
-                        <li>{{this.map_name}}</li>
+                        <li onclick="displayTable('map_{{ this.id }}')">{{this.map_name}}</li>
                     {{/each}}
                 </div>
             </nav>
             <div id="scores">
                 {{#each scores}}
-                <table id="{{@key}}" class="map_scores">
+                <table id="map_{{@key}}" class="map_scores">
                     <tr id="header">
                         <th>Position</th>
                         <th>Player name</th>
