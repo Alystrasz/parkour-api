@@ -5,24 +5,29 @@
         <link href="assets/style.css" rel="stylesheet" />
     </head>
     <body>
-        <h1>Parkour scoreboard</h1>
-        <nav>
-            <h1>{{event.name}}</h1>
-            <h2>{{event.description}}</h2>
-        </nav>
-        <table>
-            <tr id="header">
-                <th>Position</th>
-                <th>Player name</th>
-                <th>Time (seconds)</th>
-            </tr>
-            {{#each scores}}
-            <tr>
-                <td>{{@index}}</td>
-                <td>{{this.name}}</td>
-                <td>{{this.time}}</td>
-            </tr>
-            {{/each}}
-        </table>
+        <div id="content">
+            <nav>
+                <div id="event">
+                    <h1>{{event.name}}</h1>
+                    <h2>{{event.description}}</h2>
+                </div>
+            </nav>
+            <div id="scores">
+                <table>
+                    <tr id="header">
+                        <th>Position</th>
+                        <th>Player name</th>
+                        <th>Time (seconds)</th>
+                    </tr>
+                    {{#each scores}}
+                    <tr>
+                        <td>{{@index}}</td>
+                        <td>{{this.name}}</td>
+                        <td>{{this.time}}</td>
+                    </tr>
+                    {{/each}}
+                </table>
+            </div>
+        </div>
     </body>
 </html>

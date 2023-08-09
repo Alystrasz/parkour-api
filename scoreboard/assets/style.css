@@ -3,6 +3,18 @@ body {
     color: white;
     font-family: Arial, Helvetica, sans-serif;
     font-size: 1rem;
+    position: fixed;
+    top: 10px;
+    bottom: 10px;
+    left: 10px;
+    right: 10px;
+}
+
+#content {
+    display: flex;
+    overflow: hidden;
+    height: 100%;
+    width: 100%;
 }
 
 h1 {
@@ -10,8 +22,12 @@ h1 {
     width: 20rem;
 }
 
-table {
-    margin: 0 auto;
+#scores, #scores table {
+    width: 100%;
+}
+
+#scores {
+    overflow-y: scroll;
 }
 
 tr:hover {
