@@ -1,4 +1,4 @@
-use std::{sync::Arc, time::SystemTime};
+use std::{sync::Arc, time::SystemTime, fs::File, io::Read};
 
 use handlebars::Handlebars;
 use serde::Serialize;
@@ -6,6 +6,8 @@ use serde_json::json;
 use warp::{Filter, Reply, Rejection};
 
 use crate::{Store, event::Event, log};
+
+const TEMPLATE_FILE: &str = "scoreboard/template.html";
 
 struct WithTemplate<T: Serialize> {
     name: &'static str,
@@ -24,38 +26,26 @@ where
 }
 
 pub fn get_routes(store: Store) -> impl Filter<Extract = impl Reply, Error = Rejection> + Clone {
-    let template = "<!DOCTYPE html>
-        <html>
-            <head>
-                <title>Parkour scoreboard</title>
-                <link href=\"assets/style.css\" rel=\"stylesheet\" />
-            </head>
-            <body>
-                <h1>Parkour scoreboard</h1>
-                <nav>
-                    <h1>{{event.name}}</h1>
-                    <h2>{{event.description}}</h2>
-                </nav>
-                <table>
-                    <tr id=\"header\">
-                        <th>Position</th>
-                        <th>Player name</th>
-                        <th>Time (seconds)</th>
-                    </tr>
-                    {{#each scores}}
-                    <tr>
-                        <td>{{@index}}</td>
-                        <td>{{this.name}}</td>
-                        <td>{{this.time}}</td>
-                    </tr>
-                    {{/each}}
-                </table>
-            </body>
-        </html>";
+    // Load HTML template
+    let mut file = match File::open(TEMPLATE_FILE) {
+        Ok(file) => file,
+        Err(_) => {
+            log::info(&format!("\"{}\" template file was not found.", TEMPLATE_FILE));
+            std::process::exit(3);
+        }
+    };
+    let mut data = String::new();
+    match file.read_to_string(&mut data) {
+        Ok(_) => (),
+        Err(err) => {
+            log::error(&format!("Failed reading \"{}\" file [{}].", TEMPLATE_FILE, err));
+            std::process::exit(2);
+        }
+    };
 
     let mut hb = Handlebars::new();
     // register the template
-    hb.register_template_string("template.html", template)
+    hb.register_template_string("template.html", data)
         .unwrap();
 
     // Turn Handlebars instance into a Filter so we can combine it
@@ -66,7 +56,7 @@ pub fn get_routes(store: Store) -> impl Filter<Extract = impl Reply, Error = Rej
     let handlebars = move |with_template| render(with_template, hb.clone());
 
     // Static route to serve CSS and JS assets
-    let static_assets = warp::path("assets").and(warp::fs::dir("assets"));
+    let static_assets = warp::path("assets").and(warp::fs::dir("scoreboard/assets"));
 
     // Find current event
     let now = SystemTime::now().duration_since(SystemTime::UNIX_EPOCH).unwrap().as_secs();
