@@ -19,8 +19,13 @@ function initDocument() {
     // Retrieve map name through selection item (a bit hacky I know)
     const li = document.querySelector(`li[map_id=${selected_table.getAttribute('map_id')}]`);
     const map_name = li.getAttribute('map_name');
-
     displayTable(selected_table.id, map_name);
+
+    // Load map names into maps list
+    const mapItems = document.querySelectorAll('#mapsList li');
+    for (const item of mapItems) {
+        item.innerText = getMapName(item.innerText);
+    }
 }
 
 function displayTable(tableId, mapName) {
