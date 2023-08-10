@@ -42,8 +42,11 @@ h1 {
 }
 
 #scores {
-    overflow-y: auto;
     flex: 6;
+}
+
+.simplebar-scrollbar::before {
+    background-color: white !important;
 }
 
 tr:hover {

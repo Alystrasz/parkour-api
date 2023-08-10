@@ -3,6 +3,11 @@
     <head>
         <title>Bonsoir à tous</title>
         <link href="assets/style.css" rel="stylesheet" />
+        <link
+            rel="stylesheet"
+            href="https://cdn.jsdelivr.net/npm/simplebar@latest/dist/simplebar.css"
+        />
+        <script src="https://cdn.jsdelivr.net/npm/simplebar@latest/dist/simplebar.min.js"></script>
     </head>
     <body>
         <div id="content">
@@ -27,7 +32,7 @@
                     </div>
                 </div>
             </nav>
-            <div id="scores">
+            <div id="scores" data-simplebar>
                 {{#each scores}}
                 <table id="map_{{@key}}" map_id="{{@key}}" class="map_scores">
                     <tr id="header">
