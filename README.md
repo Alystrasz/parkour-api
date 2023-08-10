@@ -25,6 +25,8 @@
     * **GET**: get the map configuration
     * **POST**: update the map configuration
 
+A web scoreboard displaying current event scores is served on `/`.
+
 #### Security
 
 Before launching, you need to set up a secret which will be used to authenticate servers.
