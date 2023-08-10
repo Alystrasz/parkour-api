@@ -19,7 +19,7 @@ function initDocument() {
     selected_table.setAttribute('show', '');
 }
 
-function displayTable(tableId) {
+function displayTable(tableId, mapName) {
     // Hide all tables
     let tables = document.querySelectorAll('.map_scores');
     for (let i=0; i<tables.length; i++) {
@@ -29,6 +29,49 @@ function displayTable(tableId) {
     // Show table
     let table = document.querySelector('#' + tableId);
     table.setAttribute('show', '');
+
+    // Update map card
+    document.getElementById('mapName').innerText = getMapName(mapName);
+    document.getElementById('mapSelectorImage').setAttribute('src', 'assets/img/maps/' + mapName + '.webp')
+}
+
+function getMapName(map) {
+    switch (map) {
+        case 'mp_angel_city':
+            return 'Angel City';
+        case 'mp_black_water_canal':
+            return 'Black Water Canal';
+        case 'mp_coliseum':
+            return 'Coliseum';
+        case 'mp_colony02':
+            return 'Colony';
+        case 'mp_complex03':
+            return 'Complex';
+        case 'mp_crashsite3':
+            return 'Crash Site';
+        case 'mp_drydock':
+            return 'Drydock';
+        case 'mp_eden':
+            return 'Eden';
+        case 'mp_forwardbase_kodai':
+            return 'Forwardbase Kodai';
+        case 'mp_glitch':
+            return 'Glitch';
+        case 'mp_grave':
+            return 'Boomtown';
+        case 'mp_homestead':
+            return 'Homestead';
+        case 'mp_relic02':
+            return 'Relic';
+        case 'mp_rise':
+            return 'Rise';
+        case 'mp_thaw':
+            return 'Exoplanet';
+        case 'mp_wargames':
+            return 'War Games';
+        default:
+            return 'Unknown';
+    }
 }
 
 document.addEventListener('DOMContentLoaded', initDocument);

@@ -13,10 +13,13 @@
                 </div>
                 <div id="maps">
                     {{#each maps}}
-                        <li onclick="displayTable('map_{{ this.id }}')">{{this.map_name}}</li>
+                        <li onclick="displayTable('map_{{ this.id }}', '{{this.map_name}}')">{{this.map_name}}</li>
                     {{/each}}
                     <div id="mapSelector">
-                        <img src="assets/img/maps/mp_thaw.webp"/>
+                        <div id="mapSelectorImageContainer">
+                            <img id="mapSelectorImage" src="assets/img/maps/mp_thaw.webp"/>
+                        </div>
+                        <h3 id="mapName">MAP NAME</h3>
                     </div>
                 </div>
             </nav>

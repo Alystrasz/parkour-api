@@ -77,6 +77,11 @@ th, td {
 
 /* Maps selection */
 #mapSelector {
+    position: relative;
+    pointer-events: none; /* temporary */
+}
+
+#mapSelectorImageContainer {
     height: 353px;
     width: 90%;
     transform: rotate(-45deg);
@@ -84,9 +89,15 @@ th, td {
     margin-top: -80px;
 }
 
-#mapSelector img {
+#mapSelectorImageContainer img {
     width: 100%;
     margin-top: 100px;
     transform: rotate(45deg);
     height: 50%;
+}
+
+#mapSelector h3 {
+    bottom: 70px;
+    right: 40px;
+    position: absolute;
 }
