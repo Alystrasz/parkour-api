@@ -52,6 +52,10 @@ pub fn get_routes(store: Store) -> impl Filter<Extract = impl Reply, Error = Rej
     handlebars_helper!(score_index: |index: i64| index+1);
     hb.register_helper("score_index", Box::new(score_index));
 
+    // Add a helper to reduce number of decimals
+    handlebars_helper!(reddec: |time: f64| format!("{time:.5}"));
+    hb.register_helper("reddec", Box::new(reddec));
+
     // Turn Handlebars instance into a Filter so we can combine it
     // easily with others...
     let hb = Arc::new(hb);
