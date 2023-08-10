@@ -153,3 +153,7 @@ th, td {
 #mapsList li:last-child {
     margin-bottom: 0px;
 }
+
+#mapsList li:hover {
+    background: #37405D !important;
+}
