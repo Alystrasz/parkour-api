@@ -1,4 +1,5 @@
 use std::env;
+use std::fs::create_dir_all;
 use std::{thread, time::Duration, fs::File};
 use std::io::prelude::*;
 
@@ -8,10 +9,10 @@ use crate::map_configuration::MapConfigurations;
 use crate::scores::ScoreEntries;
 use crate::{Store, log};
 
-const EVENTS_FILE: &str = "events.json";
-const MAPS_FILE: &str = "maps.json";
-const SCORES_FILE: &str = "scores.json";
-const CONFIGURATIONS_FILE: &str = "configurations.json";
+const EVENTS_FILE: &str = "data/events.json";
+const MAPS_FILE: &str = "data/maps.json";
+const SCORES_FILE: &str = "data/scores.json";
+const CONFIGURATIONS_FILE: &str = "data/configurations.json";
 
 
 /// Starts a thread that will save store state to JSON files every few seconds.
@@ -34,6 +35,15 @@ pub fn start_save_cron(store: Store) {
     thread::spawn(move || {
         loop {
             thread::sleep(Duration::from_secs(cron_interval_minutes * 60));
+
+            // Create data directory if needed
+            match create_dir_all("data") {
+                Ok(_) => (),
+                Err(err) => {
+                    log::error(&format!("Failed creating data directory [{}].", err));
+                    std::process::exit(3);
+                }
+            };
 
             // Scores
             let scores = store.scores_list.read().clone();
