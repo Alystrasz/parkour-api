@@ -125,6 +125,7 @@ th, td {
     bottom: 70px;
     right: 40px;
     position: absolute;
+    text-transform: uppercase;
 }
 
 #imageTrigger {
