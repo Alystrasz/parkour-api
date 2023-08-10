@@ -55,6 +55,12 @@ tr:nth-child(even) {
     background: #2C3147;
 }
 
+#header {
+    position: sticky;
+    top: 0;
+    pointer-events: none;
+}
+
 #header, tr:nth-child(odd) {
     background: #20263C;
 }
