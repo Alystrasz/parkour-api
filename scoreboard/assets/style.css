@@ -1,0 +1,192 @@
+body {
+    background-color: #141a32;
+    color: white;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 1rem;
+    position: fixed;
+    top: 10px;
+    bottom: 10px;
+    left: 10px;
+    right: 10px;
+}
+
+#content {
+    display: flex;
+    overflow: hidden;
+    height: 100%;
+    width: 100%;
+    border-radius: 10px;
+}
+
+#content > nav {
+    flex: 1;
+    background-color: #212B4E;
+    padding: 1rem;
+    margin-right: 5px;
+}
+
+h1 {
+    margin: 10px auto 20px auto;
+    width: 20rem;
+}
+
+#event {
+    margin-bottom: 20px;
+}
+
+#event .description {
+    font-size: 0.9rem;
+}
+
+
+
+/* Displayed table is selected through javascript */
+.map_scores {
+    display: none;
+}
+.map_scores[show] {
+    display: table;
+}
+
+#scores, #scores table {
+    width: 100%;
+}
+
+#scores {
+    flex: 6;
+}
+
+.simplebar-scrollbar::before {
+    background-color: white !important;
+}
+
+tr:hover {
+    background: #37405D !important;
+}
+
+
+tr:nth-child(even) {
+    background: #2C3147;
+}
+
+#header {
+    position: sticky;
+    top: 0;
+    pointer-events: none;
+}
+
+#header, tr:nth-child(odd) {
+    background: #20263C;
+}
+
+#header th {
+    padding: 10px;
+}
+
+#header th:nth-child(1) {
+    width: 5rem;
+}
+#header th:nth-child(2) {
+    width: 15rem;
+}
+#header th:nth-child(3) {
+    width: 10rem;
+}
+
+th, td {
+    padding: 5px 10px;
+    text-align: center;
+}
+
+
+/* Maps selection */
+#mapSelector {
+    position: relative;
+    pointer-events: none;
+    user-select: none;
+}
+
+#mapSelectorImageContainer {
+    height: 353px;
+    width: 90%;
+    transform: rotate(-45deg);
+    overflow: hidden;
+    margin-top: -80px;
+}
+
+#mapSelectorImageContainer img {
+    width: 100%;
+    margin-top: 100px;
+    transform: rotate(45deg);
+    height: 50%;
+}
+
+#mapSelector h3 {
+    bottom: 70px;
+    right: 40px;
+    position: absolute;
+    text-transform: uppercase;
+}
+
+#imageTrigger {
+    position: absolute;
+    width: 100%;
+    height: 178px;
+    top: 96px;
+    cursor: pointer;
+    pointer-events: all;
+}
+
+#mapsList {
+    list-style: none;
+    padding: 1px;
+    margin: -80px 23px 0 37px;
+    background: #141a32;
+    display: none;
+}
+#mapsList[show] {
+    display: block;
+}
+
+#mapsList li {
+    padding: 5px 10px;
+    cursor: pointer;
+    margin-bottom: 1px;
+}
+
+#mapsList li:nth-child(even) {
+    background: #2C3147;
+}
+#mapsList li:nth-child(odd) {
+    background: #20263C;
+}
+
+#mapsList li:last-child {
+    margin-bottom: 0px;
+}
+
+#mapsList li:hover {
+    background: #37405D !important;
+}
+
+
+#links {
+    bottom: 0;
+    padding: 0;
+    position: absolute;
+    list-style: none;
+    opacity: 0.5;
+}
+
+#links li {
+    padding: 5px 0;
+}
+
+#links li a {
+    color: white;
+    text-decoration: none;
+}
+
+#links li a img {
+    width: 15px;
+}

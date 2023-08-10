@@ -10,8 +10,8 @@ pub type Events = Vec<Event>;
 pub struct Event {
     name: String,
     description: String,
-    start: i64,
-    end: i64,
+    pub start: i64,
+    pub end: i64,
     pub id: Option<String>
 }
 

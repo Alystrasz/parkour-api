@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Parkour scoreboard</title>
+        <link rel="shortcut icon" href="/assets/img/favicon-32.png" type="image/png">
+        <link href="assets/style.css" rel="stylesheet" />
+        <link
+            rel="stylesheet"
+            href="https://cdn.jsdelivr.net/npm/simplebar@latest/dist/simplebar.css"
+        />
+        <script src="https://cdn.jsdelivr.net/npm/simplebar@latest/dist/simplebar.min.js"></script>
+    </head>
+    <body>
+        <div id="content">
+            <nav>
+                <div id="event">
+                    <h1>{{event.name}}</h1>
+                    <p>{{event.description}}</p>
+                    <p class="description">
+                        From: {{date2 event.start}}<br/>
+                        To: {{date2 event.end}}
+                    </p>
+                </div>
+                <div id="maps">
+                    <div id="mapSelector">
+                        <div id="mapSelectorImageContainer">
+                            <img id="mapSelectorImage" src="assets/img/maps/mp_thaw.webp"/>
+                        </div>
+                        <div id="imageTrigger" onclick="toggleMapsListDisplay()"></div>
+                        <h3 id="mapName">MAP NAME</h3>
+                    </div>
+                    <ul id="mapsList">
+                        {{#each maps}}
+                            <li
+                                map_id="{{this.id}}"
+                                map_name="{{this.map_name}}"
+                                onclick="displayTable('map_{{ this.id }}', '{{this.map_name}}')"
+                            >{{this.map_name}}</li>
+                        {{/each}}
+                    </ul>
+                </div>
+                <ul id="links">
+                    <li>
+                        <a href="https://northstar.tf/discord" target="_blank">
+                            <img src="assets/img/icon_discord.svg"/>
+                            Northstar Discord
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://github.com/Alystrasz/Alystrasz.Parkour" target="_blank">
+                            <img src="assets/img/github.png"/>
+                            Parkour mod source code
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://github.com/Alystrasz/parkour-api" target="_blank">
+                            <img src="assets/img/github.png"/>
+                            Parkour API source code
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+            <div id="scores" data-simplebar>
+                {{#each scores}}
+                <table id="map_{{@key}}" map_id="{{@key}}" class="map_scores">
+                    <tr id="header">
+                        <th>Position</th>
+                        <th>Player name</th>
+                        <th>Time (seconds)</th>
+                    </tr>
+                    {{#each this}}
+                    <tr>
+                        <td>{{score_index @index}}</td>
+                        <td>{{this.name}}</td>
+                        <td>{{reddec this.time}}</td>
+                    </tr>
+                    {{/each}}
+                </table>
+                {{/each}}
+            </div>
+        </div>
+        <footer>
+            <script type="application/javascript" src="assets/main.js"></script>
+        </footer>
+    </body>
+</html>
