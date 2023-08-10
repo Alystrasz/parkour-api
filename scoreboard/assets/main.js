@@ -37,10 +37,6 @@ function displayTable(tableId, mapName) {
     // Update map card
     document.getElementById('mapName').innerText = getMapName(mapName);
     document.getElementById('mapSelectorImage').setAttribute('src', 'assets/img/maps/' + mapName + '.webp')
-
-    // Hide maps list
-    const list = document.getElementById('mapsList');
-    list.toggleAttribute('show', false);
 }
 
 function getMapName(map) {
@@ -88,3 +84,7 @@ function toggleMapsListDisplay() {
 }
 
 document.addEventListener('DOMContentLoaded', initDocument);
+document.body.addEventListener('click', function() {
+    const list = document.getElementById('mapsList');
+    list.toggleAttribute('show', false);
+}, true);
