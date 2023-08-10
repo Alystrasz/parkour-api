@@ -64,9 +64,20 @@ async fn main() {
     let config_routes = map_configuration::get_routes(store.clone());
     let routes = event_routes.or(map_routes).or(score_routes).or(config_routes);
 
-    let scoreboard_route = scoreboard::get_routes(store);
+    // Authentication middleware
+    let routes = accept_requests.and(routes);
 
-    warp::serve(accept_requests.and(routes).or(scoreboard_route))
-        .run(([0, 0, 0, 0], 3030))
-        .await;
+    // Serve scoreboard route only if there are registered events
+    if store.clone().events_list.read().len() >= 1 {
+        let scoreboard_route = scoreboard::get_routes(store);
+        let new_routes = routes.or(scoreboard_route);
+        warp::serve(new_routes)
+            .run(([0, 0, 0, 0], 3030))
+            .await;
+    } else {
+        log::warn("Not serving scoreboard since no events were found.");
+        warp::serve(routes)
+            .run(([0, 0, 0, 0], 3030))
+            .await;
+    }
 }
