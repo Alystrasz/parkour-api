@@ -15,7 +15,9 @@
                     {{#each maps}}
                         <li onclick="displayTable('map_{{ this.id }}')">{{this.map_name}}</li>
                     {{/each}}
-                    <img src="assets/img/maps/mp_thaw.webp"/>
+                    <div id="mapSelector">
+                        <img src="assets/img/maps/mp_thaw.webp"/>
+                    </div>
                 </div>
             </nav>
             <div id="scores">
