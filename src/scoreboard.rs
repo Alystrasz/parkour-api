@@ -1,5 +1,6 @@
 use std::{sync::Arc, time::SystemTime, fs::File, io::Read};
 
+use chrono::{NaiveDateTime, DateTime, Utc};
 use handlebars::{Handlebars, handlebars_helper};
 use serde::Serialize;
 use serde_json::json;
@@ -55,6 +56,15 @@ pub fn get_routes(store: Store) -> impl Filter<Extract = impl Reply, Error = Rej
     // Add a helper to reduce number of decimals
     handlebars_helper!(reddec: |time: f64| format!("{time:.5}"));
     hb.register_helper("reddec", Box::new(reddec));
+
+    // Add a helper to format dates
+    handlebars_helper!(date2: |timestamp: i64| {
+        let naive = NaiveDateTime::from_timestamp_opt(timestamp, 0).unwrap();
+        let datetime: DateTime<Utc> = DateTime::from_utc(naive, Utc);
+        let newdate = datetime.format("%Y-%m-%d %H:%M:%S");
+        newdate.to_string() + " UTC"
+    });
+    hb.register_helper("date2", Box::new(date2));
 
     // Turn Handlebars instance into a Filter so we can combine it
     // easily with others...

@@ -30,6 +30,16 @@ h1 {
     width: 20rem;
 }
 
+#event {
+    margin-bottom: 20px;
+}
+
+#event .description {
+    font-size: 0.9rem;
+}
+
+
+
 /* Displayed table is selected through javascript */
 .map_scores {
     display: none;

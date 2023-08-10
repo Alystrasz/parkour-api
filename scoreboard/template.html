@@ -14,7 +14,11 @@
             <nav>
                 <div id="event">
                     <h1>{{event.name}}</h1>
-                    <h2>{{event.description}}</h2>
+                    <p>{{event.description}}</p>
+                    <p class="description">
+                        From: {{date2 event.start}}<br/>
+                        To: {{date2 event.end}}
+                    </p>
                 </div>
                 <div id="maps">
                     <div id="mapSelector">
