@@ -128,10 +128,9 @@ th, td {
 
 #mapsList {
     list-style: none;
-    padding: 0;
-    margin: 0;
-    margin-top: -50px;
-    border: 1px solid white;
+    padding: 1px;
+    margin: -80px 23px 0 37px;
+    background: #141a32;
     display: none;
 }
 #mapsList[show] {
@@ -141,6 +140,7 @@ th, td {
 #mapsList li {
     padding: 5px 10px;
     cursor: pointer;
+    margin-bottom: 1px;
 }
 
 #mapsList li:nth-child(even) {
@@ -148,4 +148,8 @@ th, td {
 }
 #mapsList li:nth-child(odd) {
     background: #20263C;
+}
+
+#mapsList li:last-child {
+    margin-bottom: 0px;
 }
