@@ -9,5 +9,7 @@ RUN cargo build -r
 FROM rust:1.69
 WORKDIR /app
 COPY --from=build-stage /app/target/release ./build
+WORKDIR /
+COPY ./scoreboard ./scoreboard 
 EXPOSE 3030
 CMD ["/app/build/parkour-api"]
