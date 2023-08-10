@@ -13,7 +13,11 @@
                 </div>
                 <div id="maps">
                     {{#each maps}}
-                        <li onclick="displayTable('map_{{ this.id }}', '{{this.map_name}}')">{{this.map_name}}</li>
+                        <li
+                            map_id="{{this.id}}"
+                            map_name="{{this.map_name}}"
+                            onclick="displayTable('map_{{ this.id }}', '{{this.map_name}}')"
+                        >{{this.map_name}}</li>
                     {{/each}}
                     <div id="mapSelector">
                         <div id="mapSelectorImageContainer">
@@ -25,7 +29,7 @@
             </nav>
             <div id="scores">
                 {{#each scores}}
-                <table id="map_{{@key}}" class="map_scores">
+                <table id="map_{{@key}}" map_id="{{@key}}" class="map_scores">
                     <tr id="header">
                         <th>Position</th>
                         <th>Player name</th>
