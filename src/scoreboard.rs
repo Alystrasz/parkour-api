@@ -1,6 +1,6 @@
 use std::{sync::Arc, time::SystemTime, fs::File, io::Read};
 
-use handlebars::Handlebars;
+use handlebars::{Handlebars, handlebars_helper};
 use serde::Serialize;
 use serde_json::json;
 use warp::{Filter, Reply, Rejection};
@@ -47,6 +47,10 @@ pub fn get_routes(store: Store) -> impl Filter<Extract = impl Reply, Error = Rej
     // register the template
     hb.register_template_string("template.html", data)
         .unwrap();
+
+    // Add a helper to have indexes starting from 1
+    handlebars_helper!(score_index: |index: i64| index+1);
+    hb.register_helper("score_index", Box::new(score_index));
 
     // Turn Handlebars instance into a Filter so we can combine it
     // easily with others...
