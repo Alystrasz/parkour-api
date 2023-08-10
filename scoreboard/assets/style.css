@@ -92,7 +92,8 @@ th, td {
 /* Maps selection */
 #mapSelector {
     position: relative;
-    pointer-events: none; /* temporary */
+    pointer-events: none;
+    user-select: none;
 }
 
 #mapSelectorImageContainer {
@@ -116,12 +117,25 @@ th, td {
     position: absolute;
 }
 
+#imageTrigger {
+    position: absolute;
+    width: 100%;
+    height: 178px;
+    top: 96px;
+    cursor: pointer;
+    pointer-events: all;
+}
+
 #mapsList {
     list-style: none;
     padding: 0;
     margin: 0;
     margin-top: -50px;
     border: 1px solid white;
+    display: none;
+}
+#mapsList[show] {
+    display: block;
 }
 
 #mapsList li {
