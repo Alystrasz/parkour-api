@@ -19,6 +19,9 @@ body {
 
 #content > nav {
     flex: 1;
+    background-color: #212B4E;
+    padding: 1rem;
+    border-radius: 20px 0 0 20px;
 }
 
 h1 {
@@ -46,6 +49,7 @@ h1 {
 tr:hover {
     background: #37405D !important;
 }
+
 
 tr:nth-child(even) {
     background: #2C3147;
