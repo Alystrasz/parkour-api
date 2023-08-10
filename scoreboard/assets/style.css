@@ -15,13 +15,14 @@ body {
     overflow: hidden;
     height: 100%;
     width: 100%;
+    border-radius: 10px;
 }
 
 #content > nav {
     flex: 1;
     background-color: #212B4E;
     padding: 1rem;
-    border-radius: 20px 0 0 20px;
+    margin-right: 5px;
 }
 
 h1 {
