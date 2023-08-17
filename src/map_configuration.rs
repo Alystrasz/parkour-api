@@ -49,6 +49,14 @@ struct EndPosition {
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
+struct Robot {
+    origin: [f64; 3],
+    angles: [i64; 3],
+    talkable_radius: i64,
+    animation: String
+}
+
+#[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct MapConfiguration {
     startLine: Line,
     finishLine: Line,
@@ -56,7 +64,8 @@ pub struct MapConfiguration {
     checkpoints: Vec<[f64; 3]>,
     start: StartPosition,
     end: EndPosition,
-    ziplines: Vec<[[f64; 3]; 2]>
+    ziplines: Vec<[[f64; 3]; 2]>,
+    robot: Robot
 }
 
 
