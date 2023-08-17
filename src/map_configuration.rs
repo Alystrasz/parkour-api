@@ -57,6 +57,12 @@ struct Robot {
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
+struct StartIndicator {
+    coordinates: [f64; 3],
+    trigger_radius: i64
+}
+
+#[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct MapConfiguration {
     startLine: Line,
     finishLine: Line,
@@ -65,7 +71,8 @@ pub struct MapConfiguration {
     start: StartPosition,
     end: EndPosition,
     ziplines: Vec<[[f64; 3]; 2]>,
-    robot: Robot
+    robot: Robot,
+    indicator: StartIndicator
 }
 
 
