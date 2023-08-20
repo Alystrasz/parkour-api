@@ -91,7 +91,7 @@ pub fn get_routes(store: Store) -> impl Filter<Extract = (impl Reply,), Error = 
     hb.register_helper("score_index", Box::new(score_index));
 
     // Add a helper to reduce number of decimals
-    handlebars_helper!(reddec: |time: f64| format!("{time:.5}"));
+    handlebars_helper!(reddec: |time: f64| format!("{time:.3}"));
     hb.register_helper("reddec", Box::new(reddec));
 
     // Add a helper to format dates
