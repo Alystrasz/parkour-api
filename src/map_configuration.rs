@@ -64,8 +64,8 @@ struct StartIndicator {
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct MapConfiguration {
-    startLine: Line,
-    finishLine: Line,
+    start_line: Line,
+    finish_line: Line,
     leaderboards: Leaderboards,
     checkpoints: Vec<[f64; 3]>,
     start: StartPosition,
