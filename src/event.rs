@@ -68,7 +68,7 @@ async fn create_event(
 ///     * one route to list all events;
 ///     * one route to create events.
 /// 
-pub fn get_routes(store: Store) -> impl Filter<Extract = impl Reply, Error = Rejection> + Clone {
+pub fn get_routes(store: Store) -> impl Filter<Extract = (impl Reply,), Error = Rejection> + Clone {
     let store_filter = warp::any().map(move || store.clone());
 
     let get_all_events = warp::get()

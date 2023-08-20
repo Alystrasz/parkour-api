@@ -63,7 +63,7 @@ fn render(hbs: Arc<Handlebars<'_>>, store: Store) -> impl warp::Reply
 }
 
 
-pub fn get_routes(store: Store) -> impl Filter<Extract = impl Reply, Error = Rejection> + Clone {
+pub fn get_routes(store: Store) -> impl Filter<Extract = (impl Reply,), Error = Rejection> + Clone {
     // Load HTML template
     let mut file = match File::open(TEMPLATE_FILE) {
         Ok(file) => file,
@@ -91,7 +91,7 @@ pub fn get_routes(store: Store) -> impl Filter<Extract = impl Reply, Error = Rej
     hb.register_helper("score_index", Box::new(score_index));
 
     // Add a helper to reduce number of decimals
-    handlebars_helper!(reddec: |time: f64| format!("{time:.3}"));
+    handlebars_helper!(reddec: |time: f64| format!("{time:.5}"));
     hb.register_helper("reddec", Box::new(reddec));
 
     // Add a helper to format dates

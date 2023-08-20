@@ -97,7 +97,7 @@ async fn create_score_entry(
 ///     * one route to list a map's scores;
 ///     * one route to create scores on a given map.
 /// 
-pub fn get_routes(store: Store) -> impl Filter<Extract = impl Reply, Error = Rejection> + Clone {
+pub fn get_routes(store: Store) -> impl Filter<Extract = (impl Reply,), Error = Rejection> + Clone {
     let store_filter = warp::any().map(move || store.clone());
 
     let scores_list_route = warp::get()

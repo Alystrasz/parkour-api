@@ -95,7 +95,7 @@ pub fn post_json() -> impl Filter<Extract = (Map,), Error = Rejection> + Clone {
 ///     * one route to list an event's maps;
 ///     * one route to create maps on a given event.
 /// 
-pub fn get_routes(store: Store) -> impl Filter<Extract = impl Reply, Error = Rejection> + Clone {
+pub fn get_routes(store: Store) -> impl Filter<Extract = (impl Reply,), Error = Rejection> + Clone {
     let store_filter = warp::any().map(move || store.clone());
 
     let map_list_route = warp::get()

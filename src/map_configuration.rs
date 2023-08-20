@@ -128,7 +128,7 @@ async fn get_map_configuration(
 ///     * one route to get a map's configuration;
 ///     * one route to create map configuration.
 /// 
-pub fn get_routes(store: Store) -> impl Filter<Extract = impl Reply, Error = Rejection> + Clone {
+pub fn get_routes(store: Store) -> impl Filter<Extract = (impl Reply,), Error = Rejection> + Clone {
     let store_filter = warp::any().map(move || store.clone());
 
     let configuration_creation_route = warp::post()
