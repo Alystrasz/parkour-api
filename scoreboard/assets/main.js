@@ -1,23 +1,44 @@
 function initDocument() {
     let tables = document.querySelectorAll('.map_scores');
-    
-    // Select the table which has the biggest number of scores to be displayed
     let selected_table = tables[0];
-    let count = 0;
+    let noTableFound = true;
 
-    for (let i=0; i<tables.length; i++) {
-        const table = tables[i];
-        const body = table.querySelector('tbody');
-        const childrenCount = body.children.length;
+    // Check if a map argument was passed
+    const url = new URL(window.location);
+    const searchParams = url.searchParams;
+    if (searchParams.has('map')) {
+        // Retrieve map id through selection menu item (a bit hacky I know)
+        const mapName = searchParams.get('map');
+        const li = document.querySelector(`li[map_name=${mapName}]`);
 
-        if (childrenCount > count) {
-            count = childrenCount;
-            selected_table = table;
+        if (li !== null) {
+            const id = li.getAttribute('map_id');
+            const matchingTable = document.querySelector(`table[id="map_${id}"]`);
+            selected_table = matchingTable;
+            noTableFound = false;
+        } else {
+            console.warn(`Could not find map with name=${mapName}, defaulting to the most populated table.`);
+        }
+    }
+
+    // Select the table which has the biggest number of scores to be displayed
+    if (noTableFound) {
+        let count = 0;
+
+        for (let i=0; i<tables.length; i++) {
+            const table = tables[i];
+            const body = table.querySelector('tbody');
+            const childrenCount = body.children.length;
+
+            if (childrenCount > count) {
+                count = childrenCount;
+                selected_table = table;
+            }
         }
     }
 
     // Retrieve map name through selection item (a bit hacky I know)
-    const li = document.querySelector(`li[map_id=${selected_table.getAttribute('map_id')}]`);
+    const li = document.querySelector(`li[map_id="${selected_table.getAttribute('map_id')}"]`);
     const map_name = li.getAttribute('map_name');
     displayTable(selected_table.id, map_name);
 
