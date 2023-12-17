@@ -97,7 +97,7 @@ pub fn get_routes(store: Store) -> impl Filter<Extract = (impl Reply,), Error = 
     // Add a helper to format dates
     handlebars_helper!(date2: |timestamp: i64| {
         let naive = NaiveDateTime::from_timestamp_opt(timestamp, 0).unwrap();
-        let datetime: DateTime<Utc> = DateTime::from_utc(naive, Utc);
+        let datetime: DateTime<Utc> = DateTime::from_naive_utc_and_offset(naive, Utc);
         let newdate = datetime.format("%Y-%m-%d %H:%M:%S");
         newdate.to_string() + " UTC"
     });
