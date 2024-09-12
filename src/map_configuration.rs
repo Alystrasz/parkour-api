@@ -63,6 +63,14 @@ struct StartIndicator {
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
+struct MapObject {
+    coordinates: [f64; 3],
+    angles: [f64; 3],
+    scale: f64,
+    model_name: String
+}
+
+#[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct MapConfiguration {
     start_line: Line,
     finish_line: Line,
@@ -72,7 +80,8 @@ pub struct MapConfiguration {
     end: EndPosition,
     ziplines: Vec<[[f64; 3]; 2]>,
     robot: Robot,
-    indicator: StartIndicator
+    indicator: StartIndicator,
+    entities: Vec<MapObject>
 }
 
 
