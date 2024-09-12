@@ -81,7 +81,7 @@ pub struct MapConfiguration {
     ziplines: Vec<[[f64; 3]; 2]>,
     robot: Robot,
     indicator: StartIndicator,
-    entities: Vec<MapObject>
+    entities: Option<Vec<MapObject>>
 }
 
 
@@ -96,11 +96,16 @@ pub fn post_json() -> impl Filter<Extract = (MapConfiguration,), Error = Rejecti
 /// 
 async fn create_map_configuration(
     map_id: String,
-    entry: MapConfiguration,
+    mut entry: MapConfiguration,
     store: Store
 ) -> Result<impl Reply, Rejection> {
 
     let mut write_lock = store.configurations_list.write();
+
+    // Init entities member if needed
+    if entry.entities.is_none() {
+        entry.entities = Some(Vec::new());
+    }
     write_lock.insert(map_id, entry);
 
     Ok(warp::reply::with_status(
