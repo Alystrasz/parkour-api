@@ -70,7 +70,7 @@ async fn create_map(
 
         let map_id = Uuid::new_v4().to_string();
         let mut write_lock = store.maps_list.write();
-        maps.push(Map { map_name: entry.map_name, id: Some(map_id.clone()), perks: Some(entry.perks).unwrap_or_else(|| { Some(HashMap::new()) }) });
+        maps.push(Map { map_name: entry.map_name, id: Some(map_id.clone()), perks: if entry.perks.is_none() { Some(HashMap::new()) } else { entry.perks } });
         write_lock.insert(event_id, maps);
 
         // Create associated scores
