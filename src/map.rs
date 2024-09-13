@@ -73,10 +73,6 @@ async fn create_map(
         maps.push(Map { map_name: entry.map_name, id: Some(map_id.clone()), perks: if entry.perks.is_none() { Some(HashMap::new()) } else { entry.perks } });
         write_lock.insert(event_id, maps);
 
-        // Create associated scores
-        let mut scores_write_lock = store.scores_list.write();
-        scores_write_lock.insert(map_id.clone(), [].to_vec());
-
         // Create associated configuration array
         let mut configurations_write_lock = store.configurations_list.write();
         configurations_write_lock.insert(map_id, [].to_vec());

@@ -104,11 +104,16 @@ async fn create_map_configuration(
     }
 
     // Insert new configuration
-    entry.id = Some(Uuid::new_v4().to_string());
+    let config_id = Uuid::new_v4().to_string();
+    entry.id = Some(config_id.clone());
     let mut configurations = map_configs.unwrap().clone();
     configurations.push(entry);
     let mut write_lock = store.configurations_list.write();
-    write_lock.insert(map_id.clone(), configurations);
+    write_lock.insert(map_id, configurations);
+
+    // Create associated scores
+    let mut scores_write_lock = store.scores_list.write();
+    scores_write_lock.insert(config_id, [].to_vec());
 
     Ok(warp::reply::with_status(
         warp::reply::json(&"Map configuration created."),
