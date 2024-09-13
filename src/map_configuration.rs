@@ -1,4 +1,5 @@
 use std::collections::HashMap;
+use uuid::Uuid;
 use warp::{hyper::StatusCode, Filter, Reply, Rejection};
 
 use crate::Store;
@@ -64,6 +65,7 @@ struct StartIndicator {
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct MapConfiguration {
+    pub id: Option<String>,
     start_line: Line,
     finish_line: Line,
     leaderboards: Leaderboards,
@@ -87,7 +89,7 @@ pub fn post_json() -> impl Filter<Extract = (MapConfiguration,), Error = Rejecti
 /// 
 async fn create_map_configuration(
     map_id: String,
-    entry: MapConfiguration,
+    mut entry: MapConfiguration,
     store: Store
 ) -> Result<impl Reply, Rejection> {
 
@@ -102,10 +104,11 @@ async fn create_map_configuration(
     }
 
     // Insert new configuration
+    entry.id = Some(Uuid::new_v4().to_string());
     let mut configurations = map_configs.unwrap().clone();
     configurations.push(entry);
     let mut write_lock = store.configurations_list.write();
-    write_lock.insert(map_id, configurations);
+    write_lock.insert(map_id.clone(), configurations);
 
     Ok(warp::reply::with_status(
         warp::reply::json(&"Map configuration created."),
