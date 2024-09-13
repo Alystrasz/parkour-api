@@ -75,7 +75,11 @@ async fn create_map(
 
         // Create associated scores
         let mut scores_write_lock = store.scores_list.write();
-        scores_write_lock.insert(map_id, [].to_vec());
+        scores_write_lock.insert(map_id.clone(), [].to_vec());
+
+        // Create associated configuration array
+        let mut configurations_write_lock = store.configurations_list.write();
+        configurations_write_lock.insert(map_id, [].to_vec());
 
         Ok(warp::reply::with_status(
             warp::reply::json(&"{\"message\": \"Map successfully created.\"}"),

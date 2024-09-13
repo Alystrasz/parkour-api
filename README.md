@@ -23,9 +23,9 @@ All entities are stored in JSON files under the `data` directory.
     * **GET**: obtain the list of scores associated to the map
     * **POST**: create a new score entry on the map scoreboard
 
-* `/v1/maps/:map_id/configuration`
-    * **GET**: get the map configuration
-    * **POST**: update the map configuration
+* `/v1/maps/:map_id/configurations`
+    * **GET**: get the map configurations
+    * **POST**: create a new configuration for the map
 
 A web scoreboard displaying current event scores is served on `/`.
 
