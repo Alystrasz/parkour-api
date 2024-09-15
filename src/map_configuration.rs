@@ -105,13 +105,21 @@ async fn create_map_configuration(
         ))
     }
 
+    let mut configurations = map_configs.unwrap().clone();
+    let index = configurations.iter().position(|config| config.name == entry.name).unwrap_or(usize::MAX);
+        if index != usize::MAX {
+            return Ok(warp::reply::with_status(
+                warp::reply::json(&"{\"error\": \"Configuration name already used.\"}"),
+                StatusCode::ALREADY_REPORTED,
+            ));
+        }
+
     // Insert new configuration
     let config_id = Uuid::new_v4().to_string();
     entry.id = Some(config_id.clone());
     if entry.perks.is_none() {
         entry.perks = Some(HashMap::new());
     }
-    let mut configurations = map_configs.unwrap().clone();
     configurations.push(entry);
     let mut write_lock = store.configurations_list.write();
     write_lock.insert(map_id, configurations);
