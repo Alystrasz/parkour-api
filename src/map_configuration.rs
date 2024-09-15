@@ -73,6 +73,7 @@ pub struct MapConfiguration {
     start: StartPosition,
     end: EndPosition,
     ziplines: Vec<[[f64; 3]; 2]>,
+    perks: Option<HashMap<String, String>>,
     robot: Robot,
     indicator: StartIndicator
 }
@@ -106,6 +107,9 @@ async fn create_map_configuration(
     // Insert new configuration
     let config_id = Uuid::new_v4().to_string();
     entry.id = Some(config_id.clone());
+    if entry.perks.is_none() {
+        entry.perks = Some(HashMap::new());
+    }
     let mut configurations = map_configs.unwrap().clone();
     configurations.push(entry);
     let mut write_lock = store.configurations_list.write();

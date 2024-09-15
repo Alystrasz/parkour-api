@@ -11,8 +11,7 @@ pub type Maps = HashMap<String, Vec<Map>>;
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct Map {
     map_name: String,
-    pub id: Option<String>,
-    pub perks: Option<HashMap<String, String>>
+    pub id: Option<String>
 }
 
 
@@ -70,7 +69,7 @@ async fn create_map(
 
         let map_id = Uuid::new_v4().to_string();
         let mut write_lock = store.maps_list.write();
-        maps.push(Map { map_name: entry.map_name, id: Some(map_id.clone()), perks: if entry.perks.is_none() { Some(HashMap::new()) } else { entry.perks } });
+        maps.push(Map { map_name: entry.map_name, id: Some(map_id.clone()) });
         write_lock.insert(event_id, maps);
 
         // Create associated configuration array
