@@ -2,17 +2,25 @@ use std::{sync::Arc, time::SystemTime, fs::File, io::Read};
 
 use chrono::{NaiveDateTime, DateTime, Utc};
 use handlebars::{Handlebars, handlebars_helper};
-use serde::Serialize;
+use serde::{Serialize, Deserialize};
 use serde_json::json;
 use warp::{Filter, Reply, Rejection};
 
-use crate::{Store, event::Event, log, scores::ScoreEntries};
+use crate::{Store, event::Event, log, scores::ScoreEntry};
 
 const TEMPLATE_FILE: &str = "scoreboard/template.html";
 
 struct WithTemplate<T: Serialize> {
     name: &'static str,
     value: T,
+}
+
+#[derive(Debug, Deserialize, Serialize, Clone)]
+struct ConfigurationResult {
+    id: String,
+    name: String,
+    map_name: String,
+    scores: Vec<ScoreEntry>
 }
 
 
@@ -37,21 +45,36 @@ fn render(hbs: Arc<Handlebars<'_>>, store: Store) -> impl warp::Reply
     }
     let corresponding_maps = maps.get(&event_id).unwrap().clone();
     let maps_clone = corresponding_maps.clone();
-    let map_names: Vec<&String> = maps_clone.iter().map(|m| m.id.as_ref().unwrap()).collect();
 
-    let scores: ScoreEntries = store
-        .clone()
-        .scores_list.read()
-        .clone()
-        .into_iter()
-        .filter(|e| map_names.contains(&&e.0)).collect();
+    // Build configuration objects
+    let mut results: Vec<ConfigurationResult> = Vec::new();
+    for map in maps_clone {
+        let configurations = store.clone().configurations_list.read().clone();
+        let map_id = map.id.unwrap();
+        if !configurations.contains_key(&map_id) {
+            log::warn(&format!("No configuration was found for map {}, skipping.", &map_id));
+            continue;
+        }
+
+        let corresponding_configs = configurations.get(&map_id).unwrap().clone();
+        results = corresponding_configs.into_iter().map(|config| {
+            return ConfigurationResult {
+                id: config.id.unwrap(),
+                name: config.name,
+                map_name: map.map_name.clone(),
+                scores: Vec::new()
+            }
+        }).collect();
+    }
+
+    // todo: load up scores in results
 
     let template = WithTemplate {
         name: "template.html",
         value: json!({
             "event": corresponding_events.clone().first(),
             "maps": corresponding_maps,
-            "scores": scores
+            "results": results
         }),
     };
 

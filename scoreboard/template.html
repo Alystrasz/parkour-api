@@ -81,6 +81,11 @@
         </div>
         <footer>
             <script type="application/javascript" src="assets/main.js"></script>
+            {{#each results}}
+                <div>ID: {{this.id}}</div>
+                <div>Name: {{this.name}}</div>
+                <div>Map: {{this.map_name}}</div>
+            {{/each}}
         </footer>
     </body>
 </html>

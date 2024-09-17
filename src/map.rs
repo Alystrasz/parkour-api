@@ -10,7 +10,7 @@ pub type Maps = HashMap<String, Vec<Map>>;
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct Map {
-    map_name: String,
+    pub map_name: String,
     pub id: Option<String>
 }
 

@@ -66,7 +66,7 @@ struct StartIndicator {
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct MapConfiguration {
     pub id: Option<String>,
-    name: String,
+    pub name: String,
     start_line: Line,
     finish_line: Line,
     leaderboards: Leaderboards,
