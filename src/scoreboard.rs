@@ -67,7 +67,16 @@ fn render(hbs: Arc<Handlebars<'_>>, store: Store) -> impl warp::Reply
         }).collect();
     }
 
-    // todo: load up scores in results
+    // Load up scores in `results`
+    let scores = store.clone().scores_list.read().clone();
+    for result in &mut results {
+        let config_id = &result.id;
+        if !scores.contains_key(config_id) {
+            log::warn(&format!("No scores were found for configuration {}, skipping.", &config_id));
+            continue;
+        }
+        result.scores = scores.get(config_id).unwrap().clone();
+    }
 
     let template = WithTemplate {
         name: "template.html",
