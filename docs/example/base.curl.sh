@@ -35,6 +35,22 @@ curl -X POST http://localhost:3030/v1/events/:event_id/maps -H "authentication: 
 
 
 #
+#  ██████╗  ██████╗ ██╗   ██╗████████╗███████╗███████╗
+#  ██╔══██╗██╔═══██╗██║   ██║╚══██╔══╝██╔════╝██╔════╝
+#  ██████╔╝██║   ██║██║   ██║   ██║   █████╗  ███████╗
+#  ██╔══██╗██║   ██║██║   ██║   ██║   ██╔══╝  ╚════██║
+#  ██║  ██║╚██████╔╝╚██████╔╝   ██║   ███████╗███████║
+#  ╚═╝  ╚═╝ ╚═════╝  ╚═════╝    ╚═╝   ╚══════╝╚══════╝
+#
+
+# Get map routes
+curl http://localhost:3030/v1/maps/:map_id/routes -H "authentication: your_secret_here"
+
+# Create map route
+curl -X POST http://localhost:3030/v1/maps/:map_id/routes -H "authentication: your_secret_here" -H "Content-Type: application/json" --data @docs/example/body/route.json
+
+
+#
 #  ███████╗ ██████╗ ██████╗ ██████╗ ███████╗███████╗
 #  ██╔════╝██╔════╝██╔═══██╗██╔══██╗██╔════╝██╔════╝
 #  ███████╗██║     ██║   ██║██████╔╝█████╗  ███████╗
@@ -44,23 +60,7 @@ curl -X POST http://localhost:3030/v1/events/:event_id/maps -H "authentication: 
 #
 
 # Get the scores
-curl http://localhost:3030/v1/maps/:map_id/scores -H "authentication: your_secret_here"
+curl http://localhost:3030/v1/routes/:route_id/scores -H "authentication: your_secret_here"
 
 # Submit a new score
-curl -X POST http://localhost:3030/v1/maps/:map_id/scores -H "authentication: your_secret_here" -H "Content-Type: application/json" --data @docs/example/body/score.json
-
-
-#
-#   ██████╗ ██████╗ ███╗   ██╗███████╗██╗ ██████╗ 
-#  ██╔════╝██╔═══██╗████╗  ██║██╔════╝██║██╔════╝ 
-#  ██║     ██║   ██║██╔██╗ ██║█████╗  ██║██║  ███╗
-#  ██║     ██║   ██║██║╚██╗██║██╔══╝  ██║██║   ██║
-#  ╚██████╗╚██████╔╝██║ ╚████║██║     ██║╚██████╔╝
-#   ╚═════╝ ╚═════╝ ╚═╝  ╚═══╝╚═╝     ╚═╝ ╚═════╝ 
-#
-
-# Get map configuration
-curl http://localhost:3030/v1/maps/:map_id/configuration -H "authentication: your_secret_here"
-
-# Create map configuration
-curl -X POST http://localhost:3030/v1/maps/:map_id/configuration -H "authentication: your_secret_here" -H "Content-Type: application/json" --data @docs/example/body/config.json
+curl -X POST http://localhost:3030/v1/routes/:route_id/scores -H "authentication: your_secret_here" -H "Content-Type: application/json" --data @docs/example/body/score.json

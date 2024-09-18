@@ -2,17 +2,25 @@ use std::{sync::Arc, time::SystemTime, fs::File, io::Read};
 
 use chrono::{NaiveDateTime, DateTime, Utc};
 use handlebars::{Handlebars, handlebars_helper};
-use serde::Serialize;
+use serde::{Serialize, Deserialize};
 use serde_json::json;
 use warp::{Filter, Reply, Rejection};
 
-use crate::{Store, event::Event, log, scores::ScoreEntries};
+use crate::{Store, event::Event, log, scores::ScoreEntry};
 
 const TEMPLATE_FILE: &str = "scoreboard/template.html";
 
 struct WithTemplate<T: Serialize> {
     name: &'static str,
     value: T,
+}
+
+#[derive(Debug, Deserialize, Serialize, Clone)]
+struct RouteResult {
+    id: String,
+    name: String,
+    map_name: String,
+    scores: Vec<ScoreEntry>
 }
 
 
@@ -37,21 +45,46 @@ fn render(hbs: Arc<Handlebars<'_>>, store: Store) -> impl warp::Reply
     }
     let corresponding_maps = maps.get(&event_id).unwrap().clone();
     let maps_clone = corresponding_maps.clone();
-    let map_names: Vec<&String> = maps_clone.iter().map(|m| m.id.as_ref().unwrap()).collect();
 
-    let scores: ScoreEntries = store
-        .clone()
-        .scores_list.read()
-        .clone()
-        .into_iter()
-        .filter(|e| map_names.contains(&&e.0)).collect();
+    // Build route objects
+    let mut results: Vec<RouteResult> = Vec::new();
+    for map in maps_clone {
+        let routes = store.clone().routes_list.read().clone();
+        let map_id = map.id.unwrap();
+        if !routes.contains_key(&map_id) {
+            log::warn(&format!("No route was found for map {}, skipping.", &map_id));
+            continue;
+        }
+
+        let corresponding_routes = routes.get(&map_id).unwrap().clone();
+        let mut map_routes: Vec<RouteResult> = corresponding_routes.into_iter().map(|route| {
+            return RouteResult {
+                id: route.id.unwrap(),
+                name: route.name,
+                map_name: map.map_name.clone(),
+                scores: Vec::new()
+            }
+        }).collect();
+        results.append(&mut map_routes);
+    }
+
+    // Load up scores in `results`
+    let scores = store.clone().scores_list.read().clone();
+    for result in &mut results {
+        let route_id = &result.id;
+        if !scores.contains_key(route_id) {
+            log::warn(&format!("No scores were found for route {}, skipping.", &route_id));
+            continue;
+        }
+        result.scores = scores.get(route_id).unwrap().clone();
+    }
 
     let template = WithTemplate {
         name: "template.html",
         value: json!({
             "event": corresponding_events.clone().first(),
             "maps": corresponding_maps,
-            "scores": scores
+            "results": results
         }),
     };
 

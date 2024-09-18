@@ -1,23 +1,23 @@
 function initDocument() {
-    let tables = document.querySelectorAll('.map_scores');
+    let tables = document.querySelectorAll('.result_scores');
     let selected_table = tables[0];
     let noTableFound = true;
 
-    // Check if a map argument was passed
+    // Check if a route argument was passed
     const url = new URL(window.location);
     const searchParams = url.searchParams;
-    if (searchParams.has('map')) {
-        // Retrieve map id through selection menu item (a bit hacky I know)
-        const mapName = searchParams.get('map');
-        const li = document.querySelector(`li[map_name=${mapName}]`);
+    if (searchParams.has('route')) {
+        // Retrieve route id through selection menu item (a bit hacky I know)
+        let routeName = searchParams.get('route');
+        const li = document.querySelector(`li[result_id=PK_${routeName}]`);
 
         if (li !== null) {
-            const id = li.getAttribute('map_id');
-            const matchingTable = document.querySelector(`table[id="map_${id}"]`);
+            const id = li.getAttribute('result_id').substring(3); // Remove "PK_" prefix
+            const matchingTable = document.querySelector(`table[id="result_${id}"]`);
             selected_table = matchingTable;
             noTableFound = false;
         } else {
-            console.warn(`Could not find map with name=${mapName}, defaulting to the most populated table.`);
+            console.warn(`Could not find route with name=${routeName}, defaulting to the most populated table.`);
         }
     }
 
@@ -38,20 +38,19 @@ function initDocument() {
     }
 
     // Retrieve map name through selection item (a bit hacky I know)
-    const li = document.querySelector(`li[map_id="${selected_table.getAttribute('map_id')}"]`);
-    const map_name = li.getAttribute('map_name');
-    displayTable(selected_table.id, map_name);
+    const li = document.querySelector(`li[result_id="PK_${selected_table.getAttribute('result_id')}"]`);
+    displayTable(selected_table.id, li.dataset.routeName, li.dataset.mapName);
 
-    // Load map names into maps list
-    const mapItems = document.querySelectorAll('#mapsList li');
-    for (const item of mapItems) {
-        item.innerText = getMapName(item.innerText);
+    // Set up route names in the route selector
+    const routeItems = document.querySelectorAll('#resultsList li');
+    for (const item of routeItems) {
+        item.innerText = `${item.dataset.routeName} (${getMapName(item.dataset.mapName)})`;
     }
 }
 
-function displayTable(tableId, mapName) {
+function displayTable(tableId, routeName, mapName) {
     // Hide all tables
-    let tables = document.querySelectorAll('.map_scores');
+    let tables = document.querySelectorAll('.result_scores');
     for (let i=0; i<tables.length; i++) {
         tables[i].removeAttribute('show');
     }
@@ -61,8 +60,9 @@ function displayTable(tableId, mapName) {
     table.setAttribute('show', '');
 
     // Update map card
-    document.getElementById('mapName').innerText = getMapName(mapName);
-    document.getElementById('mapSelectorImage').setAttribute('src', 'assets/img/maps/' + mapName + '.webp')
+    document.getElementById('routeName').innerText = routeName;
+    document.getElementById('mapName').innerText = '[' + getMapName(mapName) + ']';
+    document.getElementById('routeSelectorImage').setAttribute('src', 'assets/img/maps/' + mapName + '.webp')
 }
 
 function getMapName(map) {
@@ -104,13 +104,13 @@ function getMapName(map) {
     }
 }
 
-function toggleMapsListDisplay() {
-    const list = document.getElementById('mapsList');
+function toggleResultsListDisplay() {
+    const list = document.getElementById('resultsList');
     list.toggleAttribute('show');
 }
 
 document.addEventListener('DOMContentLoaded', initDocument);
 document.body.addEventListener('click', function() {
-    const list = document.getElementById('mapsList');
+    const list = document.getElementById('resultsList');
     list.toggleAttribute('show', false);
 }, true);

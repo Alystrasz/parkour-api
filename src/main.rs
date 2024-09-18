@@ -3,12 +3,12 @@ pub mod log;
 pub mod map;
 mod event;
 mod scores;
-pub mod map_configuration;
+pub mod route;
 mod scoreboard;
 
 use event::Events;
 use map::Maps;
-use map_configuration::MapConfigurations;
+use route::MapRoutes;
 use persistence::{start_save_cron, load_state};
 use warp::Filter;
 use parking_lot::RwLock;
@@ -20,7 +20,7 @@ pub struct Store {
   events_list: Arc<RwLock<Events>>,  
   scores_list: Arc<RwLock<scores::ScoreEntries>>,
   maps_list: Arc<RwLock<Maps>>,
-  configurations_list: Arc<RwLock<MapConfigurations>>
+  routes_list: Arc<RwLock<MapRoutes>>
 }
 
 impl Store {
@@ -29,7 +29,7 @@ impl Store {
             events_list: Arc::new(RwLock::new(Vec::new())),
             scores_list: Arc::new(RwLock::new(HashMap::new())),
             maps_list: Arc::new(RwLock::new(HashMap::new())),
-            configurations_list: Arc::new(RwLock::new(HashMap::new()))
+            routes_list: Arc::new(RwLock::new(HashMap::new()))
         }
     }
 }
@@ -61,8 +61,8 @@ async fn main() {
     let map_routes = map::get_routes(store.clone());
     let event_routes = event::get_routes(store.clone());
     let score_routes = scores::get_routes(store.clone());
-    let config_routes = map_configuration::get_routes(store.clone());
-    let routes = event_routes.or(map_routes).or(score_routes).or(config_routes);
+    let map_route_routes = route::get_routes(store.clone());
+    let routes = event_routes.or(map_routes).or(score_routes).or(map_route_routes);
 
     // Authentication middleware
     let routes = accept_requests.and(routes);
