@@ -27,15 +27,16 @@
                             <img id="routeSelectorImage" src="assets/img/maps/mp_thaw.webp"/>
                         </div>
                         <div id="imageTrigger" onclick="toggleResultsListDisplay()"></div>
+                        <h2 id="routeName">ROUTE NAME</h2>
                         <h3 id="mapName">MAP NAME</h3>
                     </div>
                     <ul id="resultsList">
                         {{#each results}}
                         <li
                             result_id="PK_{{this.id}}"
-                            data-config-name="{{this.name}}"
+                            data-route-name="{{this.name}}"
                             data-map-name="{{this.map_name}}"
-                            onclick="displayTable('result_{{ this.id }}', '{{this.map_name}}')"
+                            onclick="displayTable('result_{{ this.id }}', '{{this.name}}', '{{this.map_name}}')"
                         >
                             Placeholder
                         </li>

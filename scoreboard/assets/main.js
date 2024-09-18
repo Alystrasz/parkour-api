@@ -39,16 +39,16 @@ function initDocument() {
 
     // Retrieve map name through selection item (a bit hacky I know)
     const li = document.querySelector(`li[result_id="PK_${selected_table.getAttribute('result_id')}"]`);
-    displayTable(selected_table.id, li.dataset.mapName);
+    displayTable(selected_table.id, li.dataset.routeName, li.dataset.mapName);
 
     // Set up route names in the route selector
     const routeItems = document.querySelectorAll('#resultsList li');
     for (const item of routeItems) {
-        item.innerText = `${item.dataset.configName} (${getMapName(item.dataset.mapName)})`;
+        item.innerText = `${item.dataset.routeName} (${getMapName(item.dataset.mapName)})`;
     }
 }
 
-function displayTable(tableId, mapName) {
+function displayTable(tableId, routeName, mapName) {
     // Hide all tables
     let tables = document.querySelectorAll('.result_scores');
     for (let i=0; i<tables.length; i++) {
@@ -60,7 +60,8 @@ function displayTable(tableId, mapName) {
     table.setAttribute('show', '');
 
     // Update map card
-    document.getElementById('mapName').innerText = getMapName(mapName);
+    document.getElementById('routeName').innerText = routeName;
+    document.getElementById('mapName').innerText = '[' + getMapName(mapName) + ']';
     document.getElementById('routeSelectorImage').setAttribute('src', 'assets/img/maps/' + mapName + '.webp')
 }
 

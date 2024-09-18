@@ -15,7 +15,7 @@ body {
     overflow: hidden;
     height: 100%;
     width: 100%;
-    border-radius: 10px;
+    border-radius: 15px;
 }
 
 #content > nav {
@@ -121,11 +121,20 @@ th, td {
     height: 50%;
 }
 
-#routeSelector h3 {
-    bottom: 70px;
-    right: 40px;
+#routeSelector h2 {
+    bottom: 90px;
+    right: 36px;
     position: absolute;
     text-transform: uppercase;
+    font-size: 1.3em;
+}
+
+#routeSelector h3 {
+    bottom: 76px;
+    right: 36px;
+    position: absolute;
+    text-transform: uppercase;
+    font-size: 0.9em;
 }
 
 #imageTrigger {
