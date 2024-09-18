@@ -13,22 +13,22 @@ pub struct ScoreEntry {
     time: f32,
 }
 
-/// Retrives scores list associated to a configuration id.
+/// Retrives scores list associated to a route id.
 /// 
 async fn get_list(
-    config_id: String,
+    route_id: String,
     store: Store
     ) -> Result<impl Reply, Rejection> {
 
     let scores_read_lock = store.scores_list.read();
-    if !scores_read_lock.contains_key(&config_id) {
+    if !scores_read_lock.contains_key(&route_id) {
         return Ok(warp::reply::with_status(
-            warp::reply::json(&"{\"message\": \"Configuration not found.\"}"),
+            warp::reply::json(&"{\"message\": \"Route not found.\"}"),
             StatusCode::NOT_FOUND,
         ));
     }
 
-    let scores = scores_read_lock.get(&config_id).unwrap();
+    let scores = scores_read_lock.get(&route_id).unwrap();
     Ok(warp::reply::with_status(
         warp::reply::json(&scores),
         StatusCode::OK,
@@ -41,20 +41,20 @@ fn post_json() -> impl Filter<Extract = (ScoreEntry,), Error = Rejection> + Clon
     warp::body::content_length_limit(1024 * 16).and(warp::body::json())
 }
 
-/// Creates a score entry on a given configuration, based on its configuration identifier.
+/// Creates a score entry on a given route, based on its identifier.
 /// 
 async fn create_score_entry(
-    config_id: String,
+    route_id: String,
     entry: ScoreEntry,
     store: Store
 ) -> Result<impl Reply, Rejection> {
 
-    // Check if provided configuration exists
+    // Check if provided route exists
     let scores_map: ScoreEntries = store.scores_list.read().clone();
-    let optional_scores = scores_map.get(&config_id);
+    let optional_scores = scores_map.get(&route_id);
     if optional_scores.is_none() {
         return Ok(warp::reply::with_status(
-            warp::reply::json(&"Configuration not found."),
+            warp::reply::json(&"Route not found."),
             StatusCode::NOT_FOUND,
         ))
     }
@@ -84,7 +84,7 @@ async fn create_score_entry(
 
     // Restore list
     let mut write_lock = store.scores_list.write();
-    write_lock.insert(config_id, scores.to_vec());
+    write_lock.insert(route_id, scores.to_vec());
 
     Ok(warp::reply::with_status(
         warp::reply::json(&"Score created."),
@@ -94,15 +94,15 @@ async fn create_score_entry(
 
 
 /// Returns all score-associated routes:
-///     * one route to list a configuration's scores;
-///     * one route to create scores on a given configuration.
+///     * one route to list a route's scores;
+///     * one route to create scores on a given route.
 /// 
 pub fn get_routes(store: Store) -> impl Filter<Extract = (impl Reply,), Error = Rejection> + Clone {
     let store_filter = warp::any().map(move || store.clone());
 
     let scores_list_route = warp::get()
         .and(warp::path("v1"))
-        .and(warp::path("configurations"))
+        .and(warp::path("routes"))
         .and(warp::path::param())
         .and(warp::path("scores"))
         .and(warp::path::end())
@@ -112,7 +112,7 @@ pub fn get_routes(store: Store) -> impl Filter<Extract = (impl Reply,), Error = 
 
     let score_creation_route = warp::post()
         .and(warp::path("v1"))
-        .and(warp::path("configurations"))
+        .and(warp::path("routes"))
         .and(warp::path::param())
         .and(warp::path("scores"))
         .and(warp::path::end())

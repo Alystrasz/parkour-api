@@ -35,19 +35,19 @@ curl -X POST http://localhost:3030/v1/events/:event_id/maps -H "authentication: 
 
 
 #
-#   ██████╗ ██████╗ ███╗   ██╗███████╗██╗ ██████╗ 
-#  ██╔════╝██╔═══██╗████╗  ██║██╔════╝██║██╔════╝ 
-#  ██║     ██║   ██║██╔██╗ ██║█████╗  ██║██║  ███╗
-#  ██║     ██║   ██║██║╚██╗██║██╔══╝  ██║██║   ██║
-#  ╚██████╗╚██████╔╝██║ ╚████║██║     ██║╚██████╔╝
-#   ╚═════╝ ╚═════╝ ╚═╝  ╚═══╝╚═╝     ╚═╝ ╚═════╝ 
+#  ██████╗  ██████╗ ██╗   ██╗████████╗███████╗███████╗
+#  ██╔══██╗██╔═══██╗██║   ██║╚══██╔══╝██╔════╝██╔════╝
+#  ██████╔╝██║   ██║██║   ██║   ██║   █████╗  ███████╗
+#  ██╔══██╗██║   ██║██║   ██║   ██║   ██╔══╝  ╚════██║
+#  ██║  ██║╚██████╔╝╚██████╔╝   ██║   ███████╗███████║
+#  ╚═╝  ╚═╝ ╚═════╝  ╚═════╝    ╚═╝   ╚══════╝╚══════╝
 #
 
-# Get map configurations
-curl http://localhost:3030/v1/maps/:map_id/configurations -H "authentication: your_secret_here"
+# Get map routes
+curl http://localhost:3030/v1/maps/:map_id/routes -H "authentication: your_secret_here"
 
-# Create map configuration
-curl -X POST http://localhost:3030/v1/maps/:map_id/configurations -H "authentication: your_secret_here" -H "Content-Type: application/json" --data @docs/example/body/config.json
+# Create map route
+curl -X POST http://localhost:3030/v1/maps/:map_id/routes -H "authentication: your_secret_here" -H "Content-Type: application/json" --data @docs/example/body/route.json
 
 
 #
@@ -60,7 +60,7 @@ curl -X POST http://localhost:3030/v1/maps/:map_id/configurations -H "authentica
 #
 
 # Get the scores
-curl http://localhost:3030/v1/configurations/:config_id/scores -H "authentication: your_secret_here"
+curl http://localhost:3030/v1/routes/:route_id/scores -H "authentication: your_secret_here"
 
 # Submit a new score
-curl -X POST http://localhost:3030/v1/configurations/:config_id/scores -H "authentication: your_secret_here" -H "Content-Type: application/json" --data @docs/example/body/score.json
+curl -X POST http://localhost:3030/v1/routes/:route_id/scores -H "authentication: your_secret_here" -H "Content-Type: application/json" --data @docs/example/body/score.json

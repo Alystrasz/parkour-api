@@ -16,7 +16,7 @@ struct WithTemplate<T: Serialize> {
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
-struct ConfigurationResult {
+struct RouteResult {
     id: String,
     name: String,
     map_name: String,
@@ -46,37 +46,37 @@ fn render(hbs: Arc<Handlebars<'_>>, store: Store) -> impl warp::Reply
     let corresponding_maps = maps.get(&event_id).unwrap().clone();
     let maps_clone = corresponding_maps.clone();
 
-    // Build configuration objects
-    let mut results: Vec<ConfigurationResult> = Vec::new();
+    // Build route objects
+    let mut results: Vec<RouteResult> = Vec::new();
     for map in maps_clone {
-        let configurations = store.clone().configurations_list.read().clone();
+        let routes = store.clone().routes_list.read().clone();
         let map_id = map.id.unwrap();
-        if !configurations.contains_key(&map_id) {
-            log::warn(&format!("No configuration was found for map {}, skipping.", &map_id));
+        if !routes.contains_key(&map_id) {
+            log::warn(&format!("No route was found for map {}, skipping.", &map_id));
             continue;
         }
 
-        let corresponding_configs = configurations.get(&map_id).unwrap().clone();
-        let mut map_configurations: Vec<ConfigurationResult> = corresponding_configs.into_iter().map(|config| {
-            return ConfigurationResult {
-                id: config.id.unwrap(),
-                name: config.name,
+        let corresponding_routes = routes.get(&map_id).unwrap().clone();
+        let mut map_routes: Vec<RouteResult> = corresponding_routes.into_iter().map(|route| {
+            return RouteResult {
+                id: route.id.unwrap(),
+                name: route.name,
                 map_name: map.map_name.clone(),
                 scores: Vec::new()
             }
         }).collect();
-        results.append(&mut map_configurations);
+        results.append(&mut map_routes);
     }
 
     // Load up scores in `results`
     let scores = store.clone().scores_list.read().clone();
     for result in &mut results {
-        let config_id = &result.id;
-        if !scores.contains_key(config_id) {
-            log::warn(&format!("No scores were found for configuration {}, skipping.", &config_id));
+        let route_id = &result.id;
+        if !scores.contains_key(route_id) {
+            log::warn(&format!("No scores were found for route {}, skipping.", &route_id));
             continue;
         }
-        result.scores = scores.get(config_id).unwrap().clone();
+        result.scores = scores.get(route_id).unwrap().clone();
     }
 
     let template = WithTemplate {

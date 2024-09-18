@@ -72,9 +72,9 @@ async fn create_map(
         maps.push(Map { map_name: entry.map_name, id: Some(map_id.clone()) });
         write_lock.insert(event_id, maps);
 
-        // Create associated configuration array
-        let mut configurations_write_lock = store.configurations_list.write();
-        configurations_write_lock.insert(map_id, [].to_vec());
+        // Create associated routes array
+        let mut routes_write_lock = store.routes_list.write();
+        routes_write_lock.insert(map_id, [].to_vec());
 
         Ok(warp::reply::with_status(
             warp::reply::json(&"{\"message\": \"Map successfully created.\"}"),

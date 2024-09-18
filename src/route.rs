@@ -6,7 +6,7 @@ use crate::Store;
 use serde::{Serialize, Deserialize};
 
 
-pub type MapConfigurations = HashMap<String, Vec<MapConfiguration>>;
+pub type MapRoutes = HashMap<String, Vec<MapRoute>>;
 
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
@@ -64,7 +64,7 @@ struct StartIndicator {
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
-pub struct MapConfiguration {
+pub struct MapRoute {
     pub id: Option<String>,
     pub name: String,
     start_line: Line,
@@ -80,110 +80,110 @@ pub struct MapConfiguration {
 }
 
 
-/// This middleware creates `MapConfiguration` payloads from POST request bodies.
+/// This middleware creates `MapRoute` payloads from POST request bodies.
 /// 
-pub fn post_json() -> impl Filter<Extract = (MapConfiguration,), Error = Rejection> + Clone {
+pub fn post_json() -> impl Filter<Extract = (MapRoute,), Error = Rejection> + Clone {
     warp::body::content_length_limit(1024 * 16).and(warp::body::json())
 }
 
 
-/// Creates a map configuration, based on its map identifier.
+/// Creates a map route, based on its map identifier.
 /// 
-async fn create_map_configuration(
+async fn create_map_route(
     map_id: String,
-    mut entry: MapConfiguration,
+    mut entry: MapRoute,
     store: Store
 ) -> Result<impl Reply, Rejection> {
 
     // Check if provided map exists
-    let configs = store.configurations_list.read().clone();
-    let map_configs = configs.get(&map_id);
-    if map_configs.is_none() {
+    let routes_list = store.routes_list.read().clone();
+    let map_routes = routes_list.get(&map_id);
+    if map_routes.is_none() {
         return Ok(warp::reply::with_status(
             warp::reply::json(&"Map not found."),
             StatusCode::NOT_FOUND,
         ))
     }
 
-    let mut configurations = map_configs.unwrap().clone();
-    let index = configurations.iter().position(|config| config.name == entry.name).unwrap_or(usize::MAX);
+    let mut routes = map_routes.unwrap().clone();
+    let index = routes.iter().position(|route| route.name == entry.name).unwrap_or(usize::MAX);
         if index != usize::MAX {
             return Ok(warp::reply::with_status(
-                warp::reply::json(&"{\"error\": \"Configuration name already used.\"}"),
+                warp::reply::json(&"{\"error\": \"Route name already used.\"}"),
                 StatusCode::ALREADY_REPORTED,
             ));
         }
 
-    // Insert new configuration
-    let config_id = Uuid::new_v4().to_string();
-    entry.id = Some(config_id.clone());
+    // Insert new route
+    let route_id = Uuid::new_v4().to_string();
+    entry.id = Some(route_id.clone());
     if entry.perks.is_none() {
         entry.perks = Some(HashMap::new());
     }
-    configurations.push(entry);
-    let mut write_lock = store.configurations_list.write();
-    write_lock.insert(map_id, configurations);
+    routes.push(entry);
+    let mut write_lock = store.routes_list.write();
+    write_lock.insert(map_id, routes);
 
     // Create associated scores
     let mut scores_write_lock = store.scores_list.write();
-    scores_write_lock.insert(config_id, [].to_vec());
+    scores_write_lock.insert(route_id, [].to_vec());
 
     Ok(warp::reply::with_status(
-        warp::reply::json(&"Map configuration created."),
+        warp::reply::json(&"Map route created."),
         StatusCode::CREATED,
     ))
 }
 
 
-/// Get map configuration.
+/// Get map routes.
 /// 
-async fn get_map_configurations(
+async fn get_map_routes(
     map_id: String,
     store: Store
 ) -> Result<impl Reply, Rejection> {
 
-    let configurations_read_lock = store.configurations_list.read();
-    if !configurations_read_lock.contains_key(&map_id) {
+    let routes_read_lock = store.routes_list.read();
+    if !routes_read_lock.contains_key(&map_id) {
         return Ok(warp::reply::with_status(
-            warp::reply::json(&"Configuration not found."),
+            warp::reply::json(&"Route not found."),
             StatusCode::NOT_FOUND,
         ));
     }
 
-    let configurations = configurations_read_lock.get(&map_id).unwrap();
+    let routes = routes_read_lock.get(&map_id).unwrap();
     Ok(warp::reply::with_status(
-        warp::reply::json(&configurations),
+        warp::reply::json(&routes),
         StatusCode::OK,
     ))
 }
 
 
-/// Returns all map configuration routes:
-///     * one route to get a map's configurations;
-///     * one route to create map configurations.
+/// Returns all map routing routes:
+///     * one route to get a map's routes;
+///     * one route to create map routes.
 /// 
 pub fn get_routes(store: Store) -> impl Filter<Extract = (impl Reply,), Error = Rejection> + Clone {
     let store_filter = warp::any().map(move || store.clone());
 
-    let configuration_creation_route = warp::post()
+    let route_creation_route = warp::post()
         .and(warp::path("v1"))
         .and(warp::path("maps"))
         .and(warp::path::param())
-        .and(warp::path("configurations"))
+        .and(warp::path("routes"))
         .and(warp::path::end())
         .and(post_json())
         .and(store_filter.clone())
-        .and_then(create_map_configuration);
+        .and_then(create_map_route);
 
-    let get_configurations_route = warp::get()
+    let get_routes_route = warp::get()
         .and(warp::path("v1"))
         .and(warp::path("maps"))
         .and(warp::path::param())
-        .and(warp::path("configurations"))
+        .and(warp::path("routes"))
         .and(warp::path::end())
         .and(store_filter)
-        .and_then(get_map_configurations);
+        .and_then(get_map_routes);
 
-    configuration_creation_route.or(get_configurations_route)
+    route_creation_route.or(get_routes_route)
 }
 

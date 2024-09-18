@@ -3,9 +3,9 @@
 ### Global architecture
 
 * `Events` are the basis entity on this API; think of them like Overwatch seasons, for instance. They have a beginning and an ending date (`start` and `end` fields, in *seconds* since Epoch), and link to several maps;
-* `Maps` associate a parkour configuration to an in-game map; each map features a global scoreboard;
+* `Maps` link in-game maps to events, and link to several routes;
+* `MapRoutes` contain all information needed to setup a Parkour route (including in-game coordinates for map entities such as checkpoints and ziplines [a route example for the `mp_thaw` map is available in the `docs` directory]).
 * `Scores` store players performances for each map;
-* `MapConfigurations` contain in-game coordinates for map entities such as checkpoints and ziplines (a configuration example for the `mp_thaw` map is available in the `docs` directory).
 
 All entities are stored in JSON files under the `data` directory.
 
@@ -19,13 +19,13 @@ All entities are stored in JSON files under the `data` directory.
     * **GET**: obtain the list of maps associated to the event
     * **POST**: create a new map associated to the event
 
-* `/v1/maps/:map_id/configurations`
-    * **GET**: get the map configurations
-    * **POST**: create a new configuration for the map
+* `/v1/maps/:map_id/routes`
+    * **GET**: get the map routes
+    * **POST**: create a new route for the map
 
-* `/v1/configurations/:config_id/scores`
-    * **GET**: obtain the list of scores associated to the configuration
-    * **POST**: create a new score entry on the configuration scoreboard
+* `/v1/routes/:route_id/scores`
+    * **GET**: obtain the list of scores associated to the route
+    * **POST**: create a new score entry on the route scoreboard
 
 A web scoreboard displaying current event scores is served on `/`.
 

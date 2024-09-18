@@ -1,5 +1,5 @@
 {
-    // Configuration name (must be unique among same map's configurations)
+    // Route name (must be unique among same map's routes)
     "name": "Vanilla",
 
     // Coordinates of the starting line

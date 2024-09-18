@@ -3,11 +3,11 @@ function initDocument() {
     let selected_table = tables[0];
     let noTableFound = true;
 
-    // Check if a config argument was passed
+    // Check if a route argument was passed
     const url = new URL(window.location);
     const searchParams = url.searchParams;
     if (searchParams.has('route')) {
-        // Retrieve config id through selection menu item (a bit hacky I know)
+        // Retrieve route id through selection menu item (a bit hacky I know)
         let routeName = searchParams.get('route');
         const li = document.querySelector(`li[result_id=PK_${routeName}]`);
 
