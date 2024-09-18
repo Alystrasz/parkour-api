@@ -61,6 +61,24 @@
                 </ul>
             </nav>
             <div id="scores" data-simplebar>
+                {{#each results}}
+                <table>
+                    <tr id="header">
+                        <th>Position</th>
+                        <th>Player name</th>
+                        <th>Time (seconds)</th>
+                    </tr>
+                    {{#each this.scores}}
+                    <tr>
+                        <td>{{score_index @index}}</td>
+                        <td>{{this.name}}</td>
+                        <td>{{reddec this.time}}</td>
+                    </tr>
+                    {{/each}}
+                </table>
+                {{/each}}
+
+                <!--
                 {{#each scores}}
                 <table id="map_{{@key}}" map_id="{{@key}}" class="map_scores">
                     <tr id="header">
@@ -77,19 +95,11 @@
                     {{/each}}
                 </table>
                 {{/each}}
+                -->
             </div>
         </div>
         <footer>
             <script type="application/javascript" src="assets/main.js"></script>
-            {{#each results}}
-                <div>ID: {{this.id}}</div>
-                <div>Name: {{this.name}}</div>
-                <div>Map: {{this.map_name}}</div>
-                <div>Scores:</div>
-                {{#each this.scores}}
-                    <div>{{this.name}} -> {{this.time}}</div>
-                {{/each}}
-            {{/each}}
         </footer>
     </body>
 </html>
