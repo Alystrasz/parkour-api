@@ -10,9 +10,8 @@ pub type Maps = HashMap<String, Vec<Map>>;
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct Map {
-    map_name: String,
-    pub id: Option<String>,
-    pub perks: Option<HashMap<String, String>>
+    pub map_name: String,
+    pub id: Option<String>
 }
 
 
@@ -70,12 +69,12 @@ async fn create_map(
 
         let map_id = Uuid::new_v4().to_string();
         let mut write_lock = store.maps_list.write();
-        maps.push(Map { map_name: entry.map_name, id: Some(map_id.clone()), perks: Some(entry.perks).unwrap_or_else(|| { Some(HashMap::new()) }) });
+        maps.push(Map { map_name: entry.map_name, id: Some(map_id.clone()) });
         write_lock.insert(event_id, maps);
 
-        // Create associated scores
-        let mut scores_write_lock = store.scores_list.write();
-        scores_write_lock.insert(map_id, [].to_vec());
+        // Create associated routes array
+        let mut routes_write_lock = store.routes_list.write();
+        routes_write_lock.insert(map_id, [].to_vec());
 
         Ok(warp::reply::with_status(
             warp::reply::json(&"{\"message\": \"Map successfully created.\"}"),

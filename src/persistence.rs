@@ -5,14 +5,14 @@ use std::io::prelude::*;
 
 use crate::event::Events;
 use crate::map::Maps;
-use crate::map_configuration::MapConfigurations;
+use crate::route::MapRoutes;
 use crate::scores::ScoreEntries;
 use crate::{Store, log};
 
 const EVENTS_FILE: &str = "data/events.json";
 const MAPS_FILE: &str = "data/maps.json";
 const SCORES_FILE: &str = "data/scores.json";
-const CONFIGURATIONS_FILE: &str = "data/configurations.json";
+const ROUTES_FILE: &str = "data/routes.json";
 
 
 /// Starts a thread that will save store state to JSON files every few seconds.
@@ -120,30 +120,30 @@ pub fn start_save_cron(store: Store) {
             };
             log::info("Saved events to local file.");
 
-            // Configurations
-            let configurations = store.configurations_list.read().clone();
-            let mut buffer = match File::create(CONFIGURATIONS_FILE) {
+            // Routes
+            let routes = store.routes_list.read().clone();
+            let mut buffer = match File::create(ROUTES_FILE) {
                 Ok(file) => file,
                 Err(err) => {
-                    log::error(&format!("\"{}\" file could not be created [{}].", CONFIGURATIONS_FILE, err));
+                    log::error(&format!("\"{}\" file could not be created [{}].", ROUTES_FILE, err));
                     std::process::exit(3);
                 }
             };
-            let str = match serde_json::to_string(&configurations) {
+            let str = match serde_json::to_string(&routes) {
                 Ok(str) => str,
                 Err(err) => {
-                    log::error(&format!("Failed serializing configurations list [{}].", err));
+                    log::error(&format!("Failed serializing routes list [{}].", err));
                     std::process::exit(3);
                 }
             };
             match buffer.write_all(str.as_bytes()) {
                 Ok(str) => str,
                 Err(err) => {
-                    log::error(&format!("Failed writing configurations list to file [{}].", err));
+                    log::error(&format!("Failed writing routes list to file [{}].", err));
                     std::process::exit(3);
                 }
             };
-            log::info("Saved configurations to local file.");
+            log::info("Saved routes to local file.");
         }
     });
 }
@@ -240,11 +240,11 @@ pub fn load_state(store: Store) {
     }
     log::info(&format!("Loaded events list from \"{}\" file.", EVENTS_FILE));
 
-    // Configurations
-    let mut file = match File::open(CONFIGURATIONS_FILE) {
+    // Routes
+    let mut file = match File::open(ROUTES_FILE) {
         Ok(file) => file,
         Err(_) => {
-            log::info(&format!("\"{}\" file does not exist, initializing configurations list as empty.", CONFIGURATIONS_FILE));
+            log::info(&format!("\"{}\" file does not exist, initializing routes list as empty.", ROUTES_FILE));
             return;
         }
     };
@@ -252,20 +252,20 @@ pub fn load_state(store: Store) {
     match file.read_to_string(&mut data) {
         Ok(_) => (),
         Err(err) => {
-            log::error(&format!("Failed reading \"{}\" file [{}].", CONFIGURATIONS_FILE, err));
+            log::error(&format!("Failed reading \"{}\" file [{}].", ROUTES_FILE, err));
             std::process::exit(2);
         }
     };
-    let serialized: MapConfigurations = match serde_json::from_str::<MapConfigurations>(&data) {
+    let serialized: MapRoutes = match serde_json::from_str::<MapRoutes>(&data) {
         Ok(data) => data,
         Err(err) => {
-            log::error(&format!("Failed deserializing configurations list [{}].", err));
+            log::error(&format!("Failed deserializing routes list [{}].", err));
             std::process::exit(2);
         }
     };
-    let mut write_lock = store.configurations_list.write();
+    let mut write_lock = store.routes_list.write();
     for (key, value) in serialized {
         write_lock.insert(key, value);
     }
-    log::info(&format!("Loaded configurations list from \"{}\" file.", CONFIGURATIONS_FILE));
+    log::info(&format!("Loaded routes list from \"{}\" file.", ROUTES_FILE));
 }
