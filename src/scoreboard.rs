@@ -57,7 +57,7 @@ fn render(hbs: Arc<Handlebars<'_>>, store: Store) -> impl warp::Reply
         }
 
         let corresponding_configs = configurations.get(&map_id).unwrap().clone();
-        results = corresponding_configs.into_iter().map(|config| {
+        let mut map_configurations: Vec<ConfigurationResult> = corresponding_configs.into_iter().map(|config| {
             return ConfigurationResult {
                 id: config.id.unwrap(),
                 name: config.name,
@@ -65,6 +65,7 @@ fn render(hbs: Arc<Handlebars<'_>>, store: Store) -> impl warp::Reply
                 scores: Vec::new()
             }
         }).collect();
+        results.append(&mut map_configurations);
     }
 
     // Load up scores in `results`
