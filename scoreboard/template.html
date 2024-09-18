@@ -21,21 +21,24 @@
                         To: {{date2 event.end}}
                     </p>
                 </div>
-                <div id="maps">
-                    <div id="mapSelector">
-                        <div id="mapSelectorImageContainer">
-                            <img id="mapSelectorImage" src="assets/img/maps/mp_thaw.webp"/>
+                <div id="routes">
+                    <div id="routeSelector">
+                        <div id="routeSelectorImageContainer">
+                            <img id="routeSelectorImage" src="assets/img/maps/mp_thaw.webp"/>
                         </div>
-                        <div id="imageTrigger" onclick="toggleMapsListDisplay()"></div>
+                        <div id="imageTrigger" onclick="toggleResultsListDisplay()"></div>
                         <h3 id="mapName">MAP NAME</h3>
                     </div>
-                    <ul id="mapsList">
-                        {{#each maps}}
-                            <li
-                                map_id="{{this.id}}"
-                                map_name="{{this.map_name}}"
-                                onclick="displayTable('map_{{ this.id }}', '{{this.map_name}}')"
-                            >{{this.map_name}}</li>
+                    <ul id="resultsList">
+                        {{#each results}}
+                        <li
+                            result_id="PK_{{this.id}}"
+                            data-config-name="{{this.name}}"
+                            data-map-name="{{this.map_name}}"
+                            onclick="displayTable('result_{{ this.id }}', '{{this.map_name}}')"
+                        >
+                            Placeholder
+                        </li>
                         {{/each}}
                     </ul>
                 </div>
@@ -62,7 +65,7 @@
             </nav>
             <div id="scores" data-simplebar>
                 {{#each results}}
-                <table>
+                <table id="result_{{this.id}}" result_id="{{this.id}}" class="result_scores">
                     <tr id="header">
                         <th>Position</th>
                         <th>Player name</th>
@@ -77,25 +80,6 @@
                     {{/each}}
                 </table>
                 {{/each}}
-
-                <!--
-                {{#each scores}}
-                <table id="map_{{@key}}" map_id="{{@key}}" class="map_scores">
-                    <tr id="header">
-                        <th>Position</th>
-                        <th>Player name</th>
-                        <th>Time (seconds)</th>
-                    </tr>
-                    {{#each this}}
-                    <tr>
-                        <td>{{score_index @index}}</td>
-                        <td>{{this.name}}</td>
-                        <td>{{reddec this.time}}</td>
-                    </tr>
-                    {{/each}}
-                </table>
-                {{/each}}
-                -->
             </div>
         </div>
         <footer>
