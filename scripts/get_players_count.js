@@ -1,6 +1,7 @@
 const fs = require('node:fs');
 
-function get_players_count(maps_path, scores_path, event_id) {
+
+function get_players_count(maps_path, configurations_path, scores_path, event_id) {
     // Retrieve map IDs from event ID
     if (!fs.existsSync(maps_path)) {
         console.error(`Maps file not found (input path was "${maps_path}").`);
@@ -16,23 +17,42 @@ function get_players_count(maps_path, scores_path, event_id) {
     const event_maps_ids = event_maps.map(map => map.id);
     console.log(`Retrieved map IDs: ['${event_maps_ids.join("', '")}']`);
 
-    const player_names = [];
 
-    // Retrieve players info from map IDs
+    // Retrieve configurations from map IDs
+    const configuration_ids = [];
+    if (!fs.existsSync(configurations_path)) {
+        console.error(`Configurations file not found (input path was "${configurations_path}").`);
+        process.exit(10);
+    }
+    const configurations_data = fs.readFileSync(configurations_path, 'utf8');
+    const configurations = JSON.parse(configurations_data);
+    for (const mapId of event_maps_ids) {
+        const mapConfig = configurations[mapId];
+        if (mapConfig === undefined) {
+            console.error(`No configuration found (map id was "${mapId}").`);
+            process.exit(11);
+        }
+        configuration_ids.push(...mapConfig.map(c => c.id));
+    }
+    console.log(`Retrieved configuration IDs: ['${configuration_ids.join("', '")}']`);
+
+
+    // Retrieve scores from configuration IDs
+    const player_names = [];
     if (!fs.existsSync(scores_path)) {
         console.error(`Scores file not found (input path was "${scores_path}").`);
         process.exit(3);
     }
     const data = fs.readFileSync(scores_path, 'utf8');
     const scores = JSON.parse(data);
-    for (const map_id of event_maps_ids) {
-        const map_scores = scores[map_id];
-        if (map_scores === undefined) {
-            console.error(`Map scores not found for map id=${map_id}.`);
+    for (const config_id of configuration_ids) {
+        const config_scores = scores[config_id];
+        if (config_scores === undefined) {
+            console.error(`Scores not found for config id=${config_id}.`);
             process.exit(4);
         }
         // Only add player name if it wasn't previously registered
-        map_scores.forEach(entry => {
+        config_scores.forEach(entry => {
             if (!player_names.includes(entry.name)) {
                 player_names.push(entry.name);
             }
@@ -43,9 +63,10 @@ function get_players_count(maps_path, scores_path, event_id) {
     console.log(`Unique player count: ${player_names.length}`);
 }
 
+
 // Main
-if (process.argv.length !== 5) {
-    console.error(`Incorrect format. Expected use:\n\tnode [path/to/get_players_count.js] [path/to/events.json] [path/to/scores.json] [event_id]`);
+if (process.argv.length !== 6) {
+    console.error(`Incorrect format. Expected use:\n\tnode [path/to/get_players_count.js] [path/to/maps.json] [path/to/configurations.json] [path/to/scores.json] [event_id]`);
     return;
 }
-get_players_count(process.argv[2], process.argv[3], process.argv[4]);
+get_players_count(process.argv[2], process.argv[3], process.argv[4], process.argv[5]);
