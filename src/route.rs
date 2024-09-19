@@ -64,6 +64,14 @@ struct StartIndicator {
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
+struct MapObject {
+    coordinates: [f64; 3],
+    angles: [f64; 3],
+    scale: f64,
+    model_name: String
+}
+
+#[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct MapRoute {
     pub id: Option<String>,
     pub name: String,
@@ -76,7 +84,8 @@ pub struct MapRoute {
     ziplines: Vec<[[f64; 3]; 2]>,
     perks: Option<HashMap<String, String>>,
     robot: Robot,
-    indicator: StartIndicator
+    indicator: StartIndicator,
+    entities: Option<Vec<MapObject>>
 }
 
 
@@ -119,6 +128,9 @@ async fn create_map_route(
     entry.id = Some(route_id.clone());
     if entry.perks.is_none() {
         entry.perks = Some(HashMap::new());
+    }
+    if entry.entities.is_none() {
+        entry.entities = Some(Vec::new());
     }
     routes.push(entry);
     let mut write_lock = store.routes_list.write();
