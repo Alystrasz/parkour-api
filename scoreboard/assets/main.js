@@ -99,6 +99,21 @@ function getMapName(map) {
             return 'Exoplanet';
         case 'mp_wargames':
             return 'War Games';
+
+        // Live fire maps
+        case 'mp_lf_stacks':
+            return 'Stacks';
+        case 'mp_lf_deck':
+            return 'Deck';
+        case 'mp_lf_meadow':
+            return 'Meadow';
+        case 'mp_lf_township':
+            return 'Township';
+        case 'mp_lf_traffic':
+            return 'Traffic';
+        case 'mp_lf_uma':
+            return 'UMA';
+
         default:
             return 'Unknown';
     }
