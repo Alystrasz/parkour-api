@@ -44,7 +44,7 @@ function initDocument() {
     // Set up route names in the route selector
     const routeItems = document.querySelectorAll('#resultsList li');
     for (const item of routeItems) {
-        item.innerText = `${item.dataset.routeName} (${getMapName(item.dataset.mapName)})`;
+        item.innerText = `${item.dataset.routeName} (${getMapName(item.dataset.mapName, true)})`;
     }
 }
 
@@ -59,13 +59,17 @@ function displayTable(tableId, routeName, mapName) {
     let table = document.querySelector('#' + tableId);
     table.setAttribute('show', '');
 
+    // Handle unknown maps
+    let finalMapName = getMapName(mapName);
+    const unknownMap = finalMapName === 'Unknown';
+
     // Update map card
     document.getElementById('routeName').innerText = routeName;
-    document.getElementById('mapName').innerText = '[' + getMapName(mapName) + ']';
-    document.getElementById('routeSelectorImage').setAttribute('src', 'assets/img/maps/' + mapName + '.webp')
+    document.getElementById('mapName').innerText = '[' + (unknownMap ? mapName : finalMapName) + ']';
+    document.getElementById('routeSelectorImage').setAttribute('src', 'assets/img/maps/' + (unknownMap ? 'unknown' : mapName) + '.webp')
 }
 
-function getMapName(map) {
+function getMapName(map, returnOriginalNameIfUnknown = false) {
     switch (map) {
         case 'mp_angel_city':
             return 'Angel City';
@@ -73,6 +77,8 @@ function getMapName(map) {
             return 'Black Water Canal';
         case 'mp_coliseum':
             return 'Coliseum';
+        case 'mp_coliseum_column':
+            return 'Pillars';
         case 'mp_colony02':
             return 'Colony';
         case 'mp_complex03':
@@ -99,8 +105,23 @@ function getMapName(map) {
             return 'Exoplanet';
         case 'mp_wargames':
             return 'War Games';
+
+        // Live fire maps
+        case 'mp_lf_stacks':
+            return 'Stacks';
+        case 'mp_lf_deck':
+            return 'Deck';
+        case 'mp_lf_meadow':
+            return 'Meadow';
+        case 'mp_lf_township':
+            return 'Township';
+        case 'mp_lf_traffic':
+            return 'Traffic';
+        case 'mp_lf_uma':
+            return 'UMA';
+
         default:
-            return 'Unknown';
+            return returnOriginalNameIfUnknown ? map : 'Unknown';
     }
 }
 
