@@ -44,7 +44,7 @@ function initDocument() {
     // Set up route names in the route selector
     const routeItems = document.querySelectorAll('#resultsList li');
     for (const item of routeItems) {
-        item.innerText = `${item.dataset.routeName} (${getMapName(item.dataset.mapName)})`;
+        item.innerText = `${item.dataset.routeName} (${getMapName(item.dataset.mapName, true)})`;
     }
 }
 
@@ -59,13 +59,17 @@ function displayTable(tableId, routeName, mapName) {
     let table = document.querySelector('#' + tableId);
     table.setAttribute('show', '');
 
+    // Handle unknown maps
+    let finalMapName = getMapName(mapName);
+    const unknownMap = finalMapName === 'Unknown';
+
     // Update map card
     document.getElementById('routeName').innerText = routeName;
-    document.getElementById('mapName').innerText = '[' + getMapName(mapName) + ']';
-    document.getElementById('routeSelectorImage').setAttribute('src', 'assets/img/maps/' + mapName + '.webp')
+    document.getElementById('mapName').innerText = '[' + (unknownMap ? mapName : finalMapName) + ']';
+    document.getElementById('routeSelectorImage').setAttribute('src', 'assets/img/maps/' + (unknownMap ? 'unknown' : mapName) + '.webp')
 }
 
-function getMapName(map) {
+function getMapName(map, returnOriginalNameIfUnknown = false) {
     switch (map) {
         case 'mp_angel_city':
             return 'Angel City';
@@ -117,7 +121,7 @@ function getMapName(map) {
             return 'UMA';
 
         default:
-            return 'Unknown';
+            return returnOriginalNameIfUnknown ? map : 'Unknown';
     }
 }
 
