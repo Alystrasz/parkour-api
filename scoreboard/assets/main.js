@@ -73,6 +73,8 @@ function getMapName(map) {
             return 'Black Water Canal';
         case 'mp_coliseum':
             return 'Coliseum';
+        case 'mp_coliseum_column':
+            return 'Pillars';
         case 'mp_colony02':
             return 'Colony';
         case 'mp_complex03':
