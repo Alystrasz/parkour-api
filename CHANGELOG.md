@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.0.3
+
+* Route payload carries coordinates to display route's name in-game.
+
 ## 0.0.2
 
 * A `Map` can have several routes;

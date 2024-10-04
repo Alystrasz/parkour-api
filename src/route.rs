@@ -18,6 +18,13 @@ struct Line {
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
+struct RouteName {
+    origin: [f64; 3],
+    angles: [i64; 3],
+    dimensions: [i64; 2],
+}
+
+#[derive(Debug, Deserialize, Serialize, Clone)]
 struct LeaderboardSource {
     origin: [f64; 3],
     angles: [i64; 3],
@@ -85,6 +92,7 @@ pub struct MapRoute {
     perks: Option<HashMap<String, String>>,
     robot: Robot,
     indicator: StartIndicator,
+    route_name: RouteName,
     entities: Option<Vec<MapObject>>
 }
 
