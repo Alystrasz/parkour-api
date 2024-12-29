@@ -75,7 +75,8 @@ struct MapObject {
     coordinates: [f64; 3],
     angles: [f64; 3],
     scale: f64,
-    model_name: String
+    model_name: String,
+    hidden: Option<bool>
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
