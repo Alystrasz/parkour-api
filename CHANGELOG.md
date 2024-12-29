@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.0.4
+
+* A `MapObject` can be `hidden`;
+* Reverted margin between routes title and map components.
+
 ## 0.0.3
 
 * Route payload carries coordinates to display route's name in-game.
